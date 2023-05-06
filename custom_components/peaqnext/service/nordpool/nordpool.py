@@ -56,7 +56,7 @@ class NordPoolUpdater:
     def nordpool_entity(self) -> str:
         return getattr(self, "_nordpool_entity", "")
 
-    async def async_update_nordpool(self, initial: bool = False) -> None:
+    async def async_update_nordpool(self) -> None:
         if self.nordpool_entity is not None:
             ret = self.state_machine.states.get(self.nordpool_entity)
             _result = NordpoolDTO()
@@ -69,7 +69,7 @@ class NordPoolUpdater:
                     self._is_initialized = True
             elif self.hub.is_initialized:
                 _LOGGER.debug(
-                    f"Could not get nordpool-prices. initial: {initial}. Nordpool-entity: {self.nordpool_entity}"
+                    f"Could not get nordpool-prices. Nordpool-entity: {self.nordpool_entity}"
                 )
 
     async def async_update_set_prices(self, result: NordpoolDTO) -> bool:
@@ -100,12 +100,10 @@ class NordPoolUpdater:
                 _LOGGER.debug(
                     f"Nordpool has been set up and is ready to be used with {self.nordpool_entity}"
                 )
-                await self.async_update_nordpool(initial=True)
+                await self.async_update_nordpool()
             else:
-                self.hub.options.price.price_aware = False  # todo: composition
                 _LOGGER.error(f"more than one Nordpool entity found. Cannot continue.")
         except Exception as e:
-            self.hub.options.price.price_aware = False  # todo: composition
             _LOGGER.error(
                 f"I was unable to get a Nordpool-entity. Cannot continue.: {e}"
             )

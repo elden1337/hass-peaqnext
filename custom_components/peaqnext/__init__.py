@@ -35,7 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
 
 async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
     sensors = []
-    for s in conf.get("sensors"):
+    for s in conf.data.get("sensors"):
         sensors.append(
             NextSensor(
                 consumption_type=s["consumption_type"],
