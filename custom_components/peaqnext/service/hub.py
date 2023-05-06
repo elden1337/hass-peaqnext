@@ -6,7 +6,8 @@ from custom_components.peaqnext.service.nordpool.nordpool import NordPoolUpdater
 class Hub:
     hub_id = 33512
 
-    def __init__(self) -> Any:
+    def __init__(self, hass) -> Any:
+        self.state_machine = hass
         self.sensors: list[NextSensor] = []
         self.nordpool = NordPoolUpdater(self)
         self.sensors_dict: dict[str:NextSensor] = {}

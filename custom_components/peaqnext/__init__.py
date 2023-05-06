@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][conf.entry_id] = conf.data
-    hub = Hub()
+    hub = Hub(hass)
     hass.data[DOMAIN][HUB] = hub
     internal_sensors = await async_create_internal_sensors(conf)
     await hub.async_setup(internal_sensors)
