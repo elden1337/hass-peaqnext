@@ -1,0 +1,33 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "add_another_sensor": "Add another sensor?",
+                    "name": "Name of the sensor.",
+                    "consumption_type": "Pick consumption pattern",
+                    "total_duration_in_minutes": "Cycle duration in minutes",
+                    "total_consumption_in_kwh": "Expected consumption in kWh"
+                },
+                "description": "Add a Peaqnext-sensor, check the box to add another.",
+                "title": "Add Sensors"
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "invalid_path": "The path provided is not valid. Should be in the format `user/repo-name` and should be a valid github repository."
+        },
+        "step": {
+            "init": {
+                "title": "Manage Repos",
+                "data": {
+                    "repos": "Existing Repos: Uncheck any repos you want to remove.",
+                    "path": "New Repo: Path to the repository e.g. home-assistant-core",
+                    "name": "New Repo: Name of the sensor."
+                },
+                "description": "Remove existing repos or add a new repo."
+            }
+        }
+    }
+}

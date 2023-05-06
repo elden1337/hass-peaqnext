@@ -1,0 +1,7 @@
+{
+    "name": "Peaqnext sensors",
+    "homeassistant": "2022.10.5",
+    "zip_release": true,
+    "filename": "peaqnext.zip",
+    "render_readme": true
+}
