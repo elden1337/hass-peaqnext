@@ -2,7 +2,8 @@
     "domain": "peaqnext",
     "name": "peaqnext, utility sensors",
     "after_dependencies": [
-        "nordpool"
+        "nordpool",
+        "peaqev"
     ],
     "codeowners": [
         "@elden1337"

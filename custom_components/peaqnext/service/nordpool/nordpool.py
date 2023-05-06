@@ -18,6 +18,7 @@ class NordPoolUpdater:
         self._state: float = 0.0
         self._prices: list[float] = []
         self._prices_tomorrow: list[float] = []
+        self.setup()
 
     @property
     def is_initialized(self) -> bool:
@@ -92,7 +93,8 @@ class NordPoolUpdater:
 
     def setup(self):
         try:
-            entities = template.integration_entities(self.hub.state_machine, NORDPOOL)
+            entities = template.integration_entities(self.state_machine, NORDPOOL)
+            _LOGGER.debug(f"Found {list(entities)} Nordpool entities.")
             if len(list(entities)) < 1:
                 raise Exception("no entities found for Nordpool.")
             if len(list(entities)) == 1:
@@ -102,7 +104,7 @@ class NordPoolUpdater:
                 )
                 asyncio.run_coroutine_threadsafe(
                     self.async_update_nordpool(),
-                    self.hub.state_machine.loop,
+                    self.state_machine.loop,
                 )
             else:
                 _LOGGER.error(f"more than one Nordpool entity found. Cannot continue.")

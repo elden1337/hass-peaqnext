@@ -33,13 +33,13 @@ class PeaqNextSensor(SensorEntity):
 
     @property
     def icon(self) -> str:
-        return "mdi:cash-refund"
+        return "mdi:clock-start"
 
     async def async_update(self) -> None:
         status = await self.hub.async_get_updates(nametoid(self.given_name))
-        self._state = status["state"]
-        self._all_seqeuences = status["all_sequences"]
-        self._next_close = status["next_close"]
+        self._state = await self.async_make_string(status["state"])
+        self._all_seqeuences = await self.async_make_strings(status["all_sequences"])
+        self._next_close = await self.async_make_string(status["best_close_start"])
 
     @property
     def extra_state_attributes(self) -> dict:
