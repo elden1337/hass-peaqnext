@@ -1,6 +1,6 @@
 import logging
 import homeassistant.helpers.template as template
-
+import asyncio
 from custom_components.peaqnext.service.nordpool.nordpool_dto import NordpoolDTO
 
 
@@ -90,7 +90,7 @@ class NordPoolUpdater:
         self.state = result.state
         return ret
 
-    async def async_setup(self):
+    def setup(self):
         try:
             entities = template.integration_entities(self.hub.state_machine, NORDPOOL)
             if len(list(entities)) < 1:
@@ -100,7 +100,10 @@ class NordPoolUpdater:
                 _LOGGER.debug(
                     f"Nordpool has been set up and is ready to be used with {self.nordpool_entity}"
                 )
-                await self.async_update_nordpool()
+                asyncio.run_coroutine_threadsafe(
+                    self.async_update_nordpool(),
+                    self.hub.state_machine.loop,
+                )
             else:
                 _LOGGER.error(f"more than one Nordpool entity found. Cannot continue.")
         except Exception as e:

@@ -23,6 +23,11 @@ class NextSensor:
     _best_close_start: HourModel = field(init=False)
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
 
+    def __post_init__(self) -> None:
+        self._best_start = HourModel(0, 0, 0, 0, 0, 0)
+        self._best_close_start = HourModel(0, 0, 0, 0, 0, 0)
+        self._all_sequences = []
+
     @property
     def best_start(self) -> HourModel:
         return self._best_start

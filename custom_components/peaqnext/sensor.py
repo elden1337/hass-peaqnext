@@ -23,7 +23,7 @@ async def async_setup_entry(
 
 async def async_setup(hub, config, async_add_entities):
     sensors = []
-    for s in config.get("sensors"):
+    for s in config.data.get("sensors"):
         sensors.append(PeaqNextSensor(hub, config.entry_id, s["name"]))
 
     async_add_entities(sensors)

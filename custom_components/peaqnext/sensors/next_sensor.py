@@ -5,7 +5,7 @@ from ..const import DOMAIN, HUB
 
 if TYPE_CHECKING:
     from custom_components.peaqnext.service.hub import Hub
-
+from homeassistant.components.sensor import SensorEntity
 import logging
 from custom_components.peaqnext.service.models.hour_model import HourModel
 from custom_components.peaqnext.util import nametoid
@@ -13,7 +13,7 @@ from custom_components.peaqnext.util import nametoid
 _LOGGER = logging.getLogger(__name__)
 
 
-class PeaqNextSensor:
+class PeaqNextSensor(SensorEntity):
     should_poll = True
 
     def __init__(self, hub: Hub, entry_id, given_name):

@@ -5,15 +5,16 @@ from custom_components.peaqnext.service.nordpool.nordpool import NordPoolUpdater
 
 class Hub:
     hub_id = 33512
+    hubname = "PeaqNext"
 
     def __init__(self, hass) -> Any:
         self.state_machine = hass
         self.sensors: list[NextSensor] = []
         self.nordpool = NordPoolUpdater(self)
         self.sensors_dict: dict[str:NextSensor] = {}
+        self.nordpool.setup()
 
     async def async_setup(self, sensors: list[NextSensor]) -> None:
-        await self.nordpool.async_setup()
         self.sensors = sensors
         for s in self.sensors:
             self.sensors_dict[s.hass_entity_id] = s
