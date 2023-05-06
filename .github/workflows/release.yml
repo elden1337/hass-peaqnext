@@ -19,14 +19,14 @@ jobs:
 
       - name: ZIP peaqev Dir
         run: |
-          cd ${{ github.workspace }}/custom_components/peaqev
+          cd ${{ github.workspace }}/custom_components/peaqnext
           zip peaqev.zip -r ./
       - name: Upload zip to release
         uses: svenstaro/upload-release-action@v1-release
 
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/custom_components/peaqev/peaqev.zip
+          file: ${{ github.workspace }}/custom_components/peaqnext/peaqnext.zip
           asset_name: peaqev.zip
           tag: ${{ github.ref }}
           overwrite: true
