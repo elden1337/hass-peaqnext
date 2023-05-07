@@ -45,7 +45,7 @@ class PeaqNextSensor(SensorEntity):
     def extra_state_attributes(self) -> dict:
         # todo: fix attr for persisting the consumption-dict and connected-at
         attr_dict = {
-            "Next Close": self._next_close,
+            "Best within 12hrs": self._next_close,
             "All sequences": self._all_seqeuences,
         }
         return attr_dict
