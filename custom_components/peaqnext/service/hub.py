@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Any
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 from custom_components.peaqnext.service.nordpool.nordpool import NordPoolUpdater
@@ -6,6 +7,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change
 
 _LOGGER = logging.getLogger(__name__)
+NORDPOOL_UPDATE_FORCE = 60
 
 
 class Hub:
@@ -16,6 +18,7 @@ class Hub:
         self.state_machine: HomeAssistant = hass
         self.sensors: list[NextSensor] = []
         self.nordpool = NordPoolUpdater(self)
+        self.latest_nordpool_update = 0
         self.sensors_dict: dict[str:NextSensor] = {}
         async_track_state_change(
             self.state_machine,
@@ -28,11 +31,22 @@ class Hub:
         for s in self.sensors:
             self.sensors_dict[s.hass_entity_id] = s
 
-    async def async_prices_changed(self, prices: list) -> None:
+    async def async_update_prices(self, prices: list) -> None:
         for s in self.sensors:
-            await s.async_update_sensor(prices)
+            try:
+                await s.async_update_sensor(prices)
+            except Exception as e:
+                _LOGGER.error(
+                    f"Unable to update sensor: {s.hass_entity_id}. Exception: {e}"
+                )
 
     async def async_get_updates(self, sensor_id: str) -> dict:
+        if time.time() - self.latest_nordpool_update > NORDPOOL_UPDATE_FORCE:
+            await self.nordpool.async_update_nordpool()
+            self.latest_nordpool_update = time.time()
+            await self.async_update_prices(
+                [self.nordpool.prices, self.nordpool.prices_tomorrow]
+            )
         active_sensor = self.sensors_dict.get(sensor_id, None)
         if active_sensor is None:
             return {}

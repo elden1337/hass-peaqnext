@@ -1,6 +1,7 @@
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
+import logging
 
 CONSUMPTIONCONVERSION = {
     ConsumptionType.Flat: [1],
@@ -10,15 +11,25 @@ CONSUMPTIONCONVERSION = {
     ConsumptionType.PeakInOut: [2, 1, 1, 2],
 }
 
+_LOGGER = logging.getLogger(__name__)
+
 
 async def async_calculate_consumption_per_hour(
     consumption: float, duration_in_seconds: int, consumption_type: ConsumptionType
 ) -> list[float]:
     if 4 < duration_in_seconds <= 3600:
         return [consumption]
-    segments = await async_get_segments(consumption_type, duration_in_seconds)
-    minute_consumption = await async_get_minute_consumption(segments, consumption)
-    duration_in_minutes = int(duration_in_seconds / 60)
+    try:
+        segments = await async_get_segments(consumption_type, duration_in_seconds)
+    except Exception as e:
+        _LOGGER.error(f"Unable to get segments for sensor. Exception: {e}")
+        return [consumption]
+    try:
+        minute_consumption = await async_get_minute_consumption(segments, consumption)
+        duration_in_minutes = int(duration_in_seconds / 60)
+    except Exception as e:
+        _LOGGER.error(f"Unable to get minute consumption for sensor. Exception: {e}")
+        return [consumption]
     ret = []
     try:
         intret = 0

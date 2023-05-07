@@ -86,7 +86,7 @@ class NordPoolUpdater:
             if self.prices_tomorrow:
                 self.prices_tomorrow = []
                 ret = True
-        self.currency = result.currency
+        self._currency = result.currency
         # self.use_cent = result.price_in_cent
         self.state = result.state
         return ret

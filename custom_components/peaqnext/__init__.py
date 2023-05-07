@@ -7,6 +7,7 @@ from homeassistant.config_entries import ConfigEntry  # pylint: disable=import-e
 from homeassistant.core import HomeAssistant  # pylint: disable=import-error
 from custom_components.peaqnext.util import nametoid
 from custom_components.peaqnext.service.hub import Hub
+from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 
 from .const import DOMAIN, PLATFORMS, HUB
@@ -38,7 +39,7 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
     for s in conf.data.get("sensors"):
         sensors.append(
             NextSensor(
-                consumption_type=s["consumption_type"],
+                consumption_type=ConsumptionType(s["consumption_type"]),
                 name=s["name"],
                 hass_entity_id=nametoid(s["name"]),
                 total_duration_in_seconds=s["total_duration_in_minutes"] * 60,

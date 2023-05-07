@@ -10,6 +10,9 @@ from custom_components.peaqnext.service.hours import (
     async_cheapest_close_hour,
 )
 from custom_components.peaqnext.service.models.hour_model import HourModel
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -46,7 +49,15 @@ class NextSensor:
             self.total_duration_in_seconds,
             self.consumption_type,
         )
-        all_hours_model = await async_get_hours_sorted(prices[0], prices[1], segments)
-        self._best_start = all_hours_model[0]
-        self._best_close_start = await async_cheapest_close_hour(all_hours_model)
-        self._all_sequences = all_hours_model
+        try:
+            all_hours_model = await async_get_hours_sorted(
+                prices[0], prices[1], segments
+            )
+            self._best_start = all_hours_model[list(all_hours_model.keys())[0]]
+            self._best_close_start = await async_cheapest_close_hour(all_hours_model)
+            self._all_sequences = list(all_hours_model.values())
+        except Exception as e:
+            _LOGGER.error(
+                f"Unable to calculate best hours for sensor: {self.hass_entity_id}. Exception: {e}"
+            )
+            return

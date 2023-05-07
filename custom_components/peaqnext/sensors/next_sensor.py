@@ -68,8 +68,20 @@ class PeaqNextSensor(SensorEntity):
     async def async_make_strings(self, model: list[HourModel]) -> list[str]:
         ret = []
         for m in model:
+            _LOGGER.debug(f"async_make_strings: {m}")
             ret.append(await self.async_make_string(m))
         return ret
 
     async def async_make_string(self, model: HourModel) -> str:
-        return f"{model.hour_start}-{model.hour_end} {model.price} {model.perkwh} {model.comparer}"
+        hours = await self.async_make_hours_display(model)
+        return f"{hours} ({model.price} {self.hub.nordpool.currency})"
+
+    async def async_make_hours_display(self, model: HourModel) -> str:
+        tomorrow1: str = ""
+        tomorrow2: str = ""
+        if model.idx > 23:
+            tomorrow1 = "⁺¹"
+            tomorrow2 = "⁺¹"
+        elif model.hour_end < model.hour_start:
+            tomorrow2 = "⁺¹"
+        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:00{tomorrow2}"
