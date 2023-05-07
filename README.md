@@ -24,3 +24,11 @@ Peaqnext lets you set up sensors from config flow by giving a name, total consum
 When this is done, the sensors will appear and give you a status on the next best cycle to run the appliance with start-time, end-time and the total expected cost in parenthesis.
 
 This integration requires [Nordpool](https://github.com/custom-components/nordpool).
+
+#### Consumption-types:
+
+* **Flat consumption** - the consumption is static througout the cycle. _Example is tumble dryer_
+* **Peak in beginning** - the consumption peaks in the beginning of the cycle.
+* **Peak in end** - the consumption peaks towards the end of the cycle. _Example is washing machine_
+* **Peak in middle** - the consumption peaks in the middle of the cycle.
+* **Peak in beginning and end** - the consumption peaks in the beginning and end of the cycle.

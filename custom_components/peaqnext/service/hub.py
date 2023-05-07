@@ -54,6 +54,9 @@ class Hub:
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,
             "all_sequences": active_sensor.all_sequences,
+            "consumption_type": active_sensor.consumption_type.value,
+            "duration_in_minutes": active_sensor.total_duration_in_seconds / 60,
+            "consumption_in_kwh": active_sensor.total_consumption_in_kwh,
         }
 
     @callback
