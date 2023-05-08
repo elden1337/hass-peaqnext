@@ -28,8 +28,8 @@ class PeaqNextSensor(SensorEntity):
         self._consumption_type = None
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
-        self._non_hours_start = None
-        self._non_hours_end = None
+        self._non_hours_start = []
+        self._non_hours_end = []
 
     @property
     def state(self) -> float:
