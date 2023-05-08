@@ -44,6 +44,8 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 hass_entity_id=nametoid(s["name"]),
                 total_duration_in_seconds=s["total_duration_in_minutes"] * 60,
                 total_consumption_in_kwh=s["total_consumption_in_kwh"],
+                non_hours_start=s.get("non_hours_start", []),
+                non_hours_end=s.get("non_hours_end", []),
             )
         )
     return sensors

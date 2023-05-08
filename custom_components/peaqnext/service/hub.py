@@ -57,6 +57,8 @@ class Hub:
             "consumption_type": active_sensor.consumption_type.value,
             "duration_in_minutes": active_sensor.total_duration_in_seconds / 60,
             "consumption_in_kwh": active_sensor.total_consumption_in_kwh,
+            "non_hours_start": active_sensor.non_hours_start,
+            "non_hours_end": active_sensor.non_hours_end,
         }
 
     @callback

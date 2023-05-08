@@ -22,6 +22,8 @@ class NextSensor:
     hass_entity_id: str
     total_duration_in_seconds: int
     total_consumption_in_kwh: float
+    non_hours_start: list[int] = field(default_factory=lambda: [])
+    non_hours_end: list[int] = field(default_factory=lambda: [])
     _best_start: HourModel = field(init=False)
     _best_close_start: HourModel = field(init=False)
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
@@ -51,7 +53,7 @@ class NextSensor:
         )
         try:
             all_hours_model = await async_get_hours_sorted(
-                prices[0], prices[1], segments
+                prices[0], prices[1], segments, self.non_hours_start, self.non_hours_end
             )
             self._best_start = all_hours_model[list(all_hours_model.keys())[0]]
             self._best_close_start = await async_cheapest_close_hour(all_hours_model)

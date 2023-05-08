@@ -30,6 +30,8 @@ SENSORS_SCHEMA = vol.Schema(
         vol.Required(CONF_CONSUMPTION_TYPE): vol.In(CONSUMPTIONTYPE_NAMES),
         vol.Required(CONF_TOTAL_CONSUMPTION_IN_KWH): cv.positive_float,
         vol.Required(CONF_TOTAL_DURATION_IN_MINUTES): cv.positive_float,
+        vol.Optional("non_hours_start"): cv.multi_select(list(range(0, 24))),
+        vol.Optional("non_hours_end"): cv.multi_select(list(range(0, 24))),
         vol.Optional("add_another_sensor"): cv.boolean,
     }
 )
