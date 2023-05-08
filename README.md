@@ -21,7 +21,9 @@ Otherwise you may:
 ### Config setup:
 
 Peaqnext lets you set up sensors from config flow by giving a name, total consumption for a cycle, consumption-pattern (see below for examples) and duration of a cycle. 
-When this is done, the sensors will appear and give you a status on the next best cycle to run the appliance with start-time, end-time and the total expected cost in parenthesis.
+You may also specify hours where the suggestion may not begin, or end. This can be handy for say washing machines that you may not wish to be done in the middle of the night.
+When this is done, the sensors will appear and give you a status on the next best cycle to run the appliance with start-time, end-time and the total expected cost in parenthesis. 
+The state of the sensor will be cheapest cycle within 12hrs from now. It may be the cheapest overall, or may not. If you wish to see all the cycles you can open the sensor to reveal the attributes.
 
 This integration requires [Nordpool](https://github.com/custom-components/nordpool).
 
