@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from ..const import DOMAIN, HUB
+from datetime import datetime, timedelta
 
 if TYPE_CHECKING:
     from custom_components.peaqnext.service.hub import Hub
@@ -28,7 +29,6 @@ class PeaqNextSensor(SensorEntity):
         self._consumption_type = None
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
-        self._end_minute = None
         self._non_hours_start = []
         self._non_hours_end = []
 
@@ -49,7 +49,6 @@ class PeaqNextSensor(SensorEntity):
         self._consumption_in_kwh = status["consumption_in_kwh"]
         self._non_hours_start = status["non_hours_start"]
         self._non_hours_end = status["non_hours_end"]
-        self._end_minute = status["end_minute"]
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -95,10 +94,16 @@ class PeaqNextSensor(SensorEntity):
         price = await self.async_make_price(model)
         return f"{hours} {price}"
 
-    async def async_string_minute(self, num_minute: int) -> str:
-        if num_minute < 10:
-            return f"0{num_minute}"
-        return str(num_minute)
+    async def async_string_minute(self, dur_minutes: int, hour_start: int) -> str:
+        try:
+            dtstart = datetime(2023, 1, 1, hour_start, 0, 0)
+            dtend = dtstart + timedelta(minutes=dur_minutes)
+            ret = dtend.minute
+            if ret < 10:
+                return f"0{ret}"
+            return str(ret)
+        except Exception as e:
+            return "00"
 
     async def async_make_hours_display(self, model: HourModel) -> str:
         tomorrow1: str = ""
@@ -108,4 +113,4 @@ class PeaqNextSensor(SensorEntity):
             tomorrow2 = "⁺¹"
         elif model.hour_end < model.hour_start:
             tomorrow2 = "⁺¹"
-        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:{await self.async_string_minute(self._end_minute)}{tomorrow2}"
+        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:{await self.async_string_minute(self._duration_in_minutes, model.hour_start)}{tomorrow2}"

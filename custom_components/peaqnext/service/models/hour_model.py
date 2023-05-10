@@ -9,7 +9,6 @@ class HourModel:
     comparer: float
     hour_start: int
     hour_end: int
-    minute_end: int = 0
 
     def __post_init__(self):
         self._hour_start = self.hour_start
