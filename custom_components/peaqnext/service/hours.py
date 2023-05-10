@@ -1,5 +1,5 @@
 from custom_components.peaqnext.service.models.hour_model import HourModel
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 async def async_get_hours_sorted(
@@ -8,6 +8,7 @@ async def async_get_hours_sorted(
     consumption_pattern: list[float],
     non_hours_start: list[int],
     non_hours_end: list[int],
+    duration_in_seconds: int,
     mock_hour: int = None,
 ) -> dict[int, HourModel]:
     _hour = mock_hour if mock_hour else datetime.now().hour
@@ -19,10 +20,31 @@ async def async_get_hours_sorted(
 
     ret = {}
     for s in sequences:
+        # new func
+        if s <= 23:
+            _start = datetime.now()
+            _start = (
+                _start.replace(hour=s)
+                .replace(minute=0)
+                .replace(second=0)
+                .replace(microsecond=0)
+            )
+            _end = _start + timedelta(seconds=duration_in_seconds)
+        else:
+            _start = datetime.now()
+            _start = _start + timedelta(days=1)
+            _start = (
+                _start.replace(hour=s - 24)
+                .replace(minute=0)
+                .replace(second=0)
+                .replace(microsecond=0)
+            )
+            _end = _start + timedelta(seconds=duration_in_seconds)
+        # new func
         ret[s] = HourModel(
             idx=s,
             hour_start=s,
-            hour_end=s + len(consumption_pattern),
+            hour_end=_end.hour,
             price=sequences[s],
             perkwh=round(sequences[s] / sum(consumption_pattern), 2),
             comparer=round(sequences[s] / sum(consumption_pattern), 1),
@@ -60,5 +82,5 @@ async def async_list_all_hours(
         internal_sum = 0
         for i in range(0, len(consumption_pattern)):
             internal_sum += prices_dict[p + i] * consumption_pattern[i]
-        sequences[p] = round(internal_sum, 1)
+        sequences[p] = round(internal_sum, 2)
     return sequences
