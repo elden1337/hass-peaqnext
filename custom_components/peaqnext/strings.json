@@ -7,7 +7,9 @@
                     "name": "Name of the sensor.",
                     "consumption_type": "Pick consumption pattern",
                     "total_duration_in_minutes": "Cycle duration in minutes",
-                    "total_consumption_in_kwh": "Expected consumption in kWh"
+                    "total_consumption_in_kwh": "Expected consumption in kWh",
+                    "non_hours_start": "Can't start in these hours",
+                    "non_hours_end": "Can't end in these hours"
                 },
                 "description": "Add a Peaqnext-sensor, check the box to add another.",
                 "title": "Add Sensors"
