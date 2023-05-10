@@ -59,6 +59,7 @@ class Hub:
             "consumption_in_kwh": active_sensor.total_consumption_in_kwh,
             "non_hours_start": active_sensor.non_hours_start,
             "non_hours_end": active_sensor.non_hours_end,
+            "end_minute": active_sensor.end_minute,
         }
 
     @callback

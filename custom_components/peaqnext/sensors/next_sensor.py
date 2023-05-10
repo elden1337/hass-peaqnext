@@ -28,6 +28,7 @@ class PeaqNextSensor(SensorEntity):
         self._consumption_type = None
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
+        self._end_minute = None
         self._non_hours_start = []
         self._non_hours_end = []
 
@@ -48,6 +49,7 @@ class PeaqNextSensor(SensorEntity):
         self._consumption_in_kwh = status["consumption_in_kwh"]
         self._non_hours_start = status["non_hours_start"]
         self._non_hours_end = status["non_hours_end"]
+        self._end_minute = status["end_minute"]
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -93,6 +95,11 @@ class PeaqNextSensor(SensorEntity):
         price = await self.async_make_price(model)
         return f"{hours} {price}"
 
+    async def async_string_minute(self, num_minute: int) -> str:
+        if num_minute < 10:
+            return f"0{num_minute}"
+        return str(num_minute)
+
     async def async_make_hours_display(self, model: HourModel) -> str:
         tomorrow1: str = ""
         tomorrow2: str = ""
@@ -101,4 +108,4 @@ class PeaqNextSensor(SensorEntity):
             tomorrow2 = "⁺¹"
         elif model.hour_end < model.hour_start:
             tomorrow2 = "⁺¹"
-        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:00{tomorrow2}"
+        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:{await self.async_string_minute(self._end_minute)}{tomorrow2}"
