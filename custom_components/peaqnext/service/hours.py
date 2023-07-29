@@ -29,7 +29,7 @@ async def async_get_hours_sorted(
             price=sequences[s],
             use_cent=use_cent
         )
-    return dict(sorted(ret.items(), key=lambda i: i[1].comparer))
+    return dict(sorted(ret.items(), key=lambda i: i[1].price))
 
 def get_end(loop_index: int, duration_in_seconds:int) -> datetime:
     _start = datetime.now()
