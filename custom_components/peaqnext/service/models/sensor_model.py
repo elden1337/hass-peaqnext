@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
@@ -22,15 +23,17 @@ class NextSensor:
     hass_entity_id: str
     total_duration_in_seconds: int
     total_consumption_in_kwh: float
+    use_cent: bool = False
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
     _best_start: HourModel = field(init=False)
     _best_close_start: HourModel = field(init=False)
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
+    _mock_hour: int = datetime.now().hour
 
     def __post_init__(self) -> None:
-        self._best_start = HourModel(0, 0, 0, 0, 0, 0)
-        self._best_close_start = HourModel(0, 0, 0, 0, 0, 0)
+        self._best_start = HourModel(0, 0, 0, 0)
+        self._best_close_start = HourModel(0, 0, 0, 0)
         self._all_sequences = []
 
     @property
@@ -45,21 +48,27 @@ class NextSensor:
     def all_sequences(self) -> list[HourModel]:
         return self._all_sequences
 
-    async def async_update_sensor(self, prices: list) -> None:
+    def set_hour(self, hour) -> None:
+        self._mock_hour = hour
+
+    async def async_update_sensor(self, prices: list, use_cent:bool = False) -> None:
+        self.use_cent = use_cent
         segments: list = await async_calculate_consumption_per_hour(
             self.total_consumption_in_kwh,
             self.total_duration_in_seconds,
             self.consumption_type,
-        )
-        try:
+        )        
+        try:            
             all_hours_model = await async_get_hours_sorted(
-                prices[0],
-                prices[1],
-                segments,
-                self.non_hours_start,
-                self.non_hours_end,
-                self.total_duration_in_seconds,
-            )
+                prices=prices[0],
+                prices_tomorrow=prices[1],
+                consumption_pattern=segments,
+                non_hours_start=self.non_hours_start,
+                non_hours_end=self.non_hours_end,
+                duration_in_seconds=self.total_duration_in_seconds,
+                mock_hour=self._mock_hour,
+                use_cent=self.use_cent
+            )            
             self._best_start = all_hours_model[list(all_hours_model.keys())[0]]
             self._best_close_start = await async_cheapest_close_hour(all_hours_model)
             self._all_sequences = list(all_hours_model.values())

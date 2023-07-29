@@ -10,53 +10,43 @@ async def async_get_hours_sorted(
     non_hours_end: list[int],
     duration_in_seconds: int,
     mock_hour: int = None,
+    use_cent: bool = False
 ) -> dict[int, HourModel]:
-    _hour = mock_hour if mock_hour else datetime.now().hour
-    prices_dict = {k: v for k, v in enumerate(prices) if k >= _hour}
+    _hour = mock_hour or datetime.now().hour    
+    prices_dict = {k: v for k, v in enumerate(prices) if k >= _hour}    
     prices_dict.update({k + 24: v for k, v in enumerate(prices_tomorrow)})
     sequences = await async_list_all_hours(
         prices_dict, consumption_pattern, non_hours_start, non_hours_end
     )
-
-    ret = {}
+    ret = {} 
     for s in sequences:
-        # new func
-        if s <= 23:
-            _start = datetime.now()
-            _start = (
-                _start.replace(hour=s)
-                .replace(minute=0)
-                .replace(second=0)
-                .replace(microsecond=0)
-            )
-            _end = _start + timedelta(seconds=duration_in_seconds)
-        else:
-            _start = datetime.now()
-            _start = _start + timedelta(days=1)
-            _start = (
-                _start.replace(hour=s - 24)
-                .replace(minute=0)
-                .replace(second=0)
-                .replace(microsecond=0)
-            )
-            _end = _start + timedelta(seconds=duration_in_seconds)
-        # new func
+        _end = get_end(s, duration_in_seconds)
         ret[s] = HourModel(
+            sum_consumption_pattern=sum(consumption_pattern),
             idx=s,
             hour_start=s,
             hour_end=_end.hour,
             price=sequences[s],
-            perkwh=round(sequences[s] / sum(consumption_pattern), 2),
-            comparer=round(sequences[s] / sum(consumption_pattern), 1),
+            use_cent=use_cent
         )
     return dict(sorted(ret.items(), key=lambda i: i[1].comparer))
 
+def get_end(loop_index: int, duration_in_seconds:int) -> datetime:
+    _start = datetime.now()
+    _start = _start + timedelta(days=1)
+    _start = (
+        _start.replace(hour=loop_index - (24*(loop_index > 23)))
+        .replace(minute=0)
+        .replace(second=0)
+        .replace(microsecond=0)
+    )
+    return _start + timedelta(seconds=duration_in_seconds)
 
 async def async_cheapest_close_hour(
     hours_dict: dict[int, HourModel], mock_hour: int = None
 ) -> HourModel:
     """returns the cheapeast hour that is less than 12hrs from now."""
-    _hour = mock_hour if mock_hour else datetime.now().hour
+    _hour = mock_hour or datetime.now().hour
     hour_limit = _hour + 12
     ret = [v for k, v in hours_dict.items() if k < hour_limit]
     return ret[0]

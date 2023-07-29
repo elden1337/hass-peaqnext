@@ -4,15 +4,21 @@ from dataclasses import dataclass, field
 @dataclass
 class HourModel:
     idx: int
-    price: float
-    perkwh: float
-    comparer: float
+    price: float    
     hour_start: int
     hour_end: int
+    use_cent: bool = False
+    sum_consumption_pattern: int = 1
+    perkwh: float = field(init=False)
+    comparer: float = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self):        
         self._hour_start = self.hour_start
-        self._hour_end = self.hour_end
+        self._hour_end = self.hour_end        
+        if self.use_cent:            
+            self.price = round(self.price/100,2)        
+        self.perkwh=round(self.price / self.sum_consumption_pattern, 2)
+        self.comparer=round(self.price / self.sum_consumption_pattern, 1)
 
     @property
     def hour_start(self):

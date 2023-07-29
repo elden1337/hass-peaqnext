@@ -18,6 +18,7 @@ class NordPoolUpdater:
         self._state: float = 0.0
         self._prices: list[float] = []
         self._prices_tomorrow: list[float] = []
+        self._use_cent: bool = False
         self.setup()
 
     @property
@@ -54,6 +55,10 @@ class NordPoolUpdater:
         self._prices_tomorrow = val
 
     @property
+    def use_cent(self) -> bool:
+        return self._use_cent
+
+    @property
     def nordpool_entity(self) -> str:
         return getattr(self, "_nordpool_entity", "")
 
@@ -87,7 +92,7 @@ class NordPoolUpdater:
                 self.prices_tomorrow = []
                 ret = True
         self._currency = result.currency
-        # self.use_cent = result.price_in_cent
+        self._use_cent = result.price_in_cent
         self.state = result.state
         return ret
 

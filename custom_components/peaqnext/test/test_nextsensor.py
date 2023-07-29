@@ -12,16 +12,13 @@ async def test_prices():
     s.set_hour(2)   
     await s.async_update_sensor([_p.P230729BE,[]])    
     assert s.best_close_start.price == 0.49
-    assert s.best_close_start.hour_start == 12
+    assert s.best_close_start.hour_start == 12    
 
 @pytest.mark.asyncio
 async def test_prices_use_cent():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10, use_cent=True) 
     s.set_hour(2)   
-    await s.async_update_sensor([[h*100 for h in _p.P230729BE],[]])
-    for sp in s.all_sequences:
-        print(sp)
-    # print(f"best close: {s.best_close_start}")
+    await s.async_update_sensor([[h*100 for h in _p.P230729BE],[]], use_cent=True)    
     assert s.best_close_start.hour_start == 12
     assert s.best_close_start.price == 0.49
 
