@@ -11,7 +11,7 @@ async def async_get_hours_sorted(
     duration_in_seconds: int,
     mock_hour: int = None,
     use_cent: bool = False
-) -> dict[int, HourModel]:
+) -> dict[int, HourModel]: #todo: rewrite to a list instead. dict not needed and is just complicating things. Also, sort after comparer-total (create that) and thenby datetime
     _hour = mock_hour or datetime.now().hour    
     prices_dict = {k: v for k, v in enumerate(prices) if k >= _hour}    
     prices_dict.update({k + 24: v for k, v in enumerate(prices_tomorrow)})

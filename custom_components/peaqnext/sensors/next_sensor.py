@@ -94,14 +94,13 @@ class PeaqNextSensor(SensorEntity):
         price = await self.async_make_price(model)
         return f"{hours} {price}"
 
-    async def async_string_minute(self, dur_minutes: int, hour_start: int) -> str:
+    @staticmethod
+    def _string_minute(dur_minutes: int, hour_start: int) -> str:
         try:
             dtstart = datetime(2023, 1, 1, hour_start, 0, 0)
             dtend = dtstart + timedelta(minutes=dur_minutes)
             ret = dtend.minute
-            if ret < 10:
-                return f"0{ret}"
-            return str(ret)
+            return f"{ret:02d}"
         except Exception as e:
             return "00"
 
@@ -113,4 +112,4 @@ class PeaqNextSensor(SensorEntity):
             tomorrow2 = "⁺¹"
         elif model.hour_end < model.hour_start:
             tomorrow2 = "⁺¹"
-        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:{await self.async_string_minute(self._duration_in_minutes, model.hour_start)}{tomorrow2}"
+        return f"{model.hour_start}:00{tomorrow1}-{model.hour_end}:{self._string_minute(self._duration_in_minutes, model.hour_start)}{tomorrow2}"
