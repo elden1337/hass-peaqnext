@@ -67,6 +67,7 @@ async def test_correct_sorting_negative_prices():
     all_seq_copy = s.all_sequences[:]
     all_seq_copy.sort(key=lambda x: x.price)
     assert all_seq_copy == s.all_sequences
+    
 
 @pytest.mark.asyncio
 async def test_correct_sorting_negative_prices_use_cent():    
@@ -80,3 +81,36 @@ async def test_correct_sorting_negative_prices_use_cent():
     assert all_seq_copy == s.all_sequences
 
 
+@pytest.mark.asyncio
+async def test_start_nonhours():
+    nh_start = [6,7,8]    
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10,non_hours_start=nh_start) 
+    s.set_hour(2)   
+    await s.async_update_sensor([_p.P230729BE,[]], use_cent=False)        
+    starts = [h.hour_start for h in s.all_sequences]
+    assert all([h not in starts for h in nh_start])
+
+@pytest.mark.asyncio
+async def test_end_nonhours():
+    nh_end = [6,7,8]    
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10,non_hours_end=nh_end)
+    s.set_hour(2)   
+    await s.async_update_sensor([_p.P230729BE,[]], use_cent=False)        
+    ends = [h.hour_end for h in s.all_sequences]
+    assert all([h not in ends for h in nh_end])
+
+
+@pytest.mark.asyncio
+async def test_start_and_end_nonhours():
+    nh_end = [6,7,8]    
+    nh_start = [12,13,14]
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10,non_hours_end=nh_end, non_hours_start=nh_start)
+    s.set_hour(2)   
+    await s.async_update_sensor([_p.P230729BE,[]], use_cent=False)        
+    ends = [h.hour_end for h in s.all_sequences]
+    starts = [h.hour_start for h in s.all_sequences]
+    assert all([h not in ends for h in nh_end])
+    assert all([h not in starts for h in nh_start])
+
+
+#test nonhour start and end
