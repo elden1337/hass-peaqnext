@@ -100,6 +100,18 @@ async def test_end_nonhours():
     ends = [h.hour_end for h in s.all_sequences]
     assert all([h not in ends for h in nh_end])
 
+@pytest.mark.asyncio
+async def test_end_nonhours_washer():
+    nh_end = [23, 0, 1, 2, 3, 4, 5]
+    s = NextSensor(consumption_type=ConsumptionType.PeakOut, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=12000, total_consumption_in_kwh=1.2,non_hours_end=nh_end)
+    s.set_hour(21)   
+    s.set_date(date(2023,7,31))
+    await s.async_update_sensor([_p.P230731,_p.P230801])        
+    ends = [h.hour_end for h in s.all_sequences]
+    for h in s.all_sequences:
+        print(h.hour_start, h.hour_end, h.hour_end in nh_end)
+    assert all([h not in ends for h in nh_end])
+    #assert 1 > 2    
 
 @pytest.mark.asyncio
 async def test_start_and_end_nonhours():
@@ -129,4 +141,3 @@ async def test_midnight():
     for h in sorted(s.all_sequences, key=lambda x: x.idx):
         print(h)
     assert len(s.all_sequences) == 23
-#test nonhour start and end
