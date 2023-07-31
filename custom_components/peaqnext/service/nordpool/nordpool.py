@@ -73,9 +73,9 @@ class NordPoolUpdater:
                         [self.prices, self.prices_tomorrow]
                     )
                     self._is_initialized = True
-            elif self.hub.is_initialized:
+            else:
                 _LOGGER.debug(
-                    f"Could not get nordpool-prices. Nordpool-entity: {self.nordpool_entity}"
+                    f"Could not get nordpool-prices. Nordpool-entity: {self.nordpool_entity}. Retrying..."
                 )
 
     async def async_update_set_prices(self, result: NordpoolDTO) -> bool:
