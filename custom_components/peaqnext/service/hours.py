@@ -1,5 +1,5 @@
 from custom_components.peaqnext.service.models.hour_model import HourModel
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 
 async def async_get_hours_sorted(
@@ -9,40 +9,34 @@ async def async_get_hours_sorted(
     non_hours_start: list[int],
     non_hours_end: list[int],
     duration_in_seconds: int,
-    mock_hour: int = None,
+    mock_hour: int|None = None,
+    mock_date: date|None = None,
     use_cent: bool = False
 ) -> dict[int, HourModel]: #todo: rewrite to a list instead. dict not needed and is just complicating things. Also, sort after comparer-total (create that) and thenby datetime
-    _hour = mock_hour or datetime.now().hour    
+    _hour = datetime.now().hour if mock_hour is None else mock_hour
     prices_dict = {k: v for k, v in enumerate(prices) if k >= _hour}
     prices_dict.update({k + 24: v for k, v in enumerate(prices_tomorrow)})
-    sequences = await async_list_all_hours(
-        prices_dict, consumption_pattern#, non_hours_start, non_hours_end
-    )
-    
+    sequences = await async_list_all_hours(prices_dict, consumption_pattern)
+    _start_date = mock_date if mock_date else datetime.now().date()
+    _start = datetime(_start_date.year, _start_date.month, _start_date.day, _hour, 0, 0, 0)
     ret = {} 
+    hour_cycle = 0
     for s in sequences:
-        _end = get_end(s, duration_in_seconds)
+        _dt_start = _start +timedelta(hours=hour_cycle)
+        _end = _dt_start + timedelta(seconds=duration_in_seconds)
         if (s or s-24) not in non_hours_start and (_end.hour or _end.hour - 24) not in non_hours_end:
             ret[s] = HourModel(
-                sum_consumption_pattern=sum(consumption_pattern),
+                dt_start=_dt_start,
+                dt_end = _end,
                 idx=s,
                 hour_start=s,
                 hour_end=_end.hour,
                 price=sequences[s],
-                use_cent=use_cent
+                use_cent=use_cent,
+                sum_consumption_pattern=sum(consumption_pattern)
             )
+            hour_cycle += 1
     return dict(sorted(ret.items(), key=lambda i: i[1].price))
-
-def get_end(loop_index: int, duration_in_seconds:int) -> datetime:
-    _start = datetime.now()
-    #_start = _start + timedelta(days=1)
-    _start = (
-        _start.replace(hour=loop_index - (24*(loop_index > 23)))
-        .replace(minute=0)
-        .replace(second=0)
-        .replace(microsecond=0)
-    )
-    return _start + timedelta(seconds=duration_in_seconds)
 
 async def async_cheapest_close_hour(
     hours_dict: dict[int, HourModel], mock_hour: int = None

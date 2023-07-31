@@ -5,6 +5,7 @@ from custom_components.peaqnext.service.models.consumption_type import (
 )
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 import custom_components.peaqnext.test.prices as _p
+from datetime import date
 
 @pytest.mark.asyncio
 async def test_prices():    
@@ -112,5 +113,20 @@ async def test_start_and_end_nonhours():
     assert all([h not in ends for h in nh_end])
     assert all([h not in starts for h in nh_start])
 
-
+@pytest.mark.asyncio
+async def test_midnight():
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
+    await s.async_update_sensor([_p.P230731,[]])
+    assert len(s.all_sequences) == 23
+    s.set_hour(13)
+    await s.async_update_sensor([_p.P230731,_p.P230801])
+    assert len(s.all_sequences) == 34
+    s.set_date(date(2023,8,1))
+    s.set_hour(0)
+    await s.async_update_sensor([_p.P230801,[]])
+    for h in sorted(s.all_sequences, key=lambda x: x.idx):
+        print(h)
+    assert len(s.all_sequences) == 23
 #test nonhour start and end

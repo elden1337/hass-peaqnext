@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, date
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
@@ -30,6 +30,7 @@ class NextSensor:
     _best_close_start: HourModel = field(init=False)
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
     _mock_hour: int = datetime.now().hour
+    _mock_date: date = datetime.now().date()
 
     def __post_init__(self) -> None:
         self._best_start = HourModel(0, 0, 0, 0)
@@ -51,6 +52,9 @@ class NextSensor:
     def set_hour(self, hour) -> None:
         self._mock_hour = hour
 
+    def set_date(self, date) -> None:
+        self._mock_date = date
+
     async def async_update_sensor(self, prices: list, use_cent:bool = False) -> None:
         self.use_cent = use_cent
         segments: list = await async_calculate_consumption_per_hour(
@@ -67,10 +71,9 @@ class NextSensor:
                 non_hours_end=self.non_hours_end,
                 duration_in_seconds=self.total_duration_in_seconds,
                 mock_hour=self._mock_hour,
+                mock_date = self._mock_date,
                 use_cent=self.use_cent
             ) 
-            for i in all_hours_model.items():
-                print(i)
             self._best_start = all_hours_model[list(all_hours_model.keys())[0]]
             self._best_close_start = await async_cheapest_close_hour(all_hours_model)
             self._all_sequences = list(all_hours_model.values())
