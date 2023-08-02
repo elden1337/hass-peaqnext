@@ -45,7 +45,7 @@ async def test_correct_sorting():
     s.set_hour(2)   
     await s.async_update_sensor([_p.P230729BE,[]])        
     all_seq_copy = s.all_sequences[:]
-    all_seq_copy.sort(key=lambda x: x.comparer)
+    all_seq_copy.sort(key=lambda x: (x.comparer, x.dt_start))
     assert all_seq_copy == s.all_sequences
 
 
@@ -55,7 +55,7 @@ async def test_correct_sorting_use_cent():
     s.set_hour(2)   
     await s.async_update_sensor([[h*100 for h in _p.P230729BE],[]], use_cent=True)        
     all_seq_copy = s.all_sequences[:]
-    all_seq_copy.sort(key=lambda x: x.price)
+    all_seq_copy.sort(key=lambda x: (x.comparer, x.dt_start))
     assert all_seq_copy == s.all_sequences
 
 @pytest.mark.asyncio
@@ -66,7 +66,7 @@ async def test_correct_sorting_negative_prices():
     # for h in s.all_sequences:
     #     print(h)
     all_seq_copy = s.all_sequences[:]
-    all_seq_copy.sort(key=lambda x: x.price)
+    all_seq_copy.sort(key=lambda x: (x.comparer, x.dt_start))
     assert all_seq_copy == s.all_sequences
     
 
@@ -78,7 +78,7 @@ async def test_correct_sorting_negative_prices_use_cent():
     # for h in s.all_sequences:
     #     print(h)
     all_seq_copy = s.all_sequences[:]
-    all_seq_copy.sort(key=lambda x: x.price)
+    all_seq_copy.sort(key=lambda x: (x.comparer, x.dt_start))
     assert all_seq_copy == s.all_sequences
 
 
