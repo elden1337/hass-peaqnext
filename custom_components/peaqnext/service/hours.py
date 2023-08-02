@@ -18,13 +18,11 @@ async def async_get_hours_sorted(
     prices_dict.update({k + 24: v for k, v in enumerate(prices_tomorrow)})
     sequences = await async_list_all_hours(prices_dict, consumption_pattern)
     _start_date = mock_date if mock_date else datetime.now().date()
-    _start = datetime(_start_date.year, _start_date.month, _start_date.day, _hour, 0, 0, 0)
+    _start = datetime.combine(_start_date, datetime.min.time())
     ret = [] 
-    hour_cycle = 0
     for s in sequences:
-        _dt_start = _start +timedelta(hours=hour_cycle)
+        _dt_start = _start +timedelta(hours=s)
         _end = _dt_start + timedelta(seconds=duration_in_seconds)
-        hour_cycle += 1
         if any([
             _end.hour in non_hours_end,
             _end.hour - 24 in non_hours_end,
@@ -45,11 +43,17 @@ async def async_get_hours_sorted(
     return list(sorted(ret, key=lambda i: (i.comparer, i.dt_start)))
 
 async def async_cheapest_hour(
-    hours_list: list[HourModel], cheapest_cap: int = None, mock_hour: int = None
+    hours_list: list[HourModel], cheapest_cap: int = None, mock_hour: int = None, mock_date: date = None
 ) -> HourModel:
-    _now:datetime = datetime.now() if mock_hour is None else datetime.now().replace(hour=mock_hour)
+    _date: date = datetime.now().date() if mock_date is None else mock_date
+    _dt = datetime.combine(_date, datetime.min.time())
+    _now:datetime = _dt if mock_hour is None else _dt.replace(hour=mock_hour)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
-    return [v for v in hours_list if v.dt_start < hour_limit][0]
+    ret = [v for v in hours_list if v.dt_start < hour_limit]
+    try:
+        return ret[0]
+    except:
+        return None
 
 
 async def async_list_all_hours(

@@ -47,7 +47,7 @@ class Hub:
             await self.async_update_prices(
                 [self.nordpool.prices, self.nordpool.prices_tomorrow]
             )
-        active_sensor = self.sensors_dict.get(sensor_id, None)
+        active_sensor: NextSensor = self.sensors_dict.get(sensor_id, None)
         if active_sensor is None:
             return {}
         return {
@@ -59,6 +59,7 @@ class Hub:
             "consumption_in_kwh": active_sensor.total_consumption_in_kwh,
             "non_hours_start": active_sensor.non_hours_start,
             "non_hours_end": active_sensor.non_hours_end,
+            "closest_cheap_hour": active_sensor.default_closest_cheap,
         }
 
     @callback

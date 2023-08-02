@@ -1,16 +1,17 @@
 import pytest
-
+from custom_components.peaqnext.service.hours import async_cheapest_hour
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
+from custom_components.peaqnext.service.models.hour_model import HourModel
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 import custom_components.peaqnext.test.prices as _p
-from datetime import date
+from datetime import date, datetime, timedelta
 
 @pytest.mark.asyncio
 async def test_prices():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10) 
-    s.set_hour(2)   
+    s.set_hour(4)   
     await s.async_update_sensor([_p.P230729BE,[]])    
     assert s.best_close_start.price == 0.12
     assert s.best_close_start.hour_start == 15    
@@ -18,7 +19,7 @@ async def test_prices():
 @pytest.mark.asyncio
 async def test_prices_use_cent():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10) 
-    s.set_hour(2)   
+    s.set_hour(4)   
     await s.async_update_sensor([[h*100 for h in _p.P230729BE],[]], use_cent=True)    
     assert s.best_close_start.hour_start == 15
     assert s.best_close_start.price == 0.12
@@ -141,3 +142,13 @@ async def test_midnight():
     for h in sorted(s.all_sequences, key=lambda x: x.idx):
         print(h)
     assert len(s.all_sequences) == 23
+
+
+@pytest.mark.asyncio
+async def test_cheapest_hour():
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_date(date(2023,7,30))
+    s.set_hour(20)
+    await s.async_update_sensor([_p.P230731,_p.P230801])
+    tt = await async_cheapest_hour(s.all_sequences, cheapest_cap=None, mock_hour=s._mock_hour, mock_date=s._mock_date)
+    

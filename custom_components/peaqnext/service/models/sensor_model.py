@@ -74,12 +74,22 @@ class NextSensor:
                 mock_hour=self._mock_hour,
                 mock_date = self._mock_date,
                 use_cent=self.use_cent
-            ) 
-            self._best_start = await async_cheapest_hour(hours_list=all_hours_model, cheapest_cap=None)
-            self._best_close_start = await async_cheapest_hour(hours_list=all_hours_model, cheapest_cap=self.default_closest_cheap)
-            self._all_sequences = all_hours_model
+            )
         except Exception as e:
             _LOGGER.error(
                 f"Unable to calculate best hours for sensor: {self.hass_entity_id}. Exception: {e}"
             )
             return
+        try: 
+            self._best_start = await async_cheapest_hour(hours_list=all_hours_model, cheapest_cap=None, mock_hour=self._mock_hour, mock_date=self._mock_date)
+        except Exception as e:
+            _LOGGER.error(
+                f"Unable to calculate best_start. Exception: {e}"
+            )
+        try:
+            self._best_close_start = await async_cheapest_hour(hours_list=all_hours_model, cheapest_cap=self.default_closest_cheap, mock_hour=self._mock_hour, mock_date=self._mock_date)
+        except Exception as e:
+            _LOGGER.error(
+                f"Unable to calculate best_close_start. Exception: {e}"
+            )
+        self._all_sequences = all_hours_model
