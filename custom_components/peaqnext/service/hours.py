@@ -34,8 +34,6 @@ async def async_get_hours_sorted(
             dt_start=_dt_start,
             dt_end = _end,
             idx=s,
-            hour_start=s,
-            hour_end=_end.hour,
             price=sequences[s],
             use_cent=use_cent,
             sum_consumption_pattern=sum(consumption_pattern)
