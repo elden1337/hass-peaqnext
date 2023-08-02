@@ -12,28 +12,27 @@ async def async_get_hours_sorted(
     mock_hour: int|None = None,
     mock_date: date|None = None,
     use_cent: bool = False
-) -> dict[int, HourModel]: #todo: rewrite to a list instead. dict not needed and is just complicating things. Also, sort after comparer-total (create that) and thenby datetime
+) -> list[HourModel]:
     _hour = datetime.now().hour if mock_hour is None else mock_hour
     prices_dict = {k: v for k, v in enumerate(prices) if k >= _hour} #todo: this is a problem with late hours.
     prices_dict.update({k + 24: v for k, v in enumerate(prices_tomorrow)})
     sequences = await async_list_all_hours(prices_dict, consumption_pattern)
     _start_date = mock_date if mock_date else datetime.now().date()
     _start = datetime(_start_date.year, _start_date.month, _start_date.day, _hour, 0, 0, 0)
-    ret = {} 
+    ret = [] 
     hour_cycle = 0
     for s in sequences:
         _dt_start = _start +timedelta(hours=hour_cycle)
         _end = _dt_start + timedelta(seconds=duration_in_seconds)
         hour_cycle += 1
-        if _end.hour in non_hours_end:
+        if any([
+            _end.hour in non_hours_end,
+            _end.hour - 24 in non_hours_end,
+            s in non_hours_start,
+            s - 24 in non_hours_start,
+        ]):
             continue
-        if _end.hour - 24 in non_hours_end:
-            continue
-        if s in non_hours_start:
-            continue
-        if s - 24 in non_hours_start:
-            continue
-        ret[s] = HourModel(
+        ret.append(HourModel(
             dt_start=_dt_start,
             dt_end = _end,
             idx=s,
@@ -42,18 +41,15 @@ async def async_get_hours_sorted(
             price=sequences[s],
             use_cent=use_cent,
             sum_consumption_pattern=sum(consumption_pattern)
-        )
-        
-    return dict(sorted(ret.items(), key=lambda i: i[1].price))
+        ))
+    return list(sorted(ret, key=lambda i: (i.comparer, i.dt_start)))
 
-async def async_cheapest_close_hour(
-    hours_dict: dict[int, HourModel], cheapest_cap: int, mock_hour: int = None
+async def async_cheapest_hour(
+    hours_list: list[HourModel], cheapest_cap: int = None, mock_hour: int = None
 ) -> HourModel:
-    """returns the cheapeast hour that is less than 12hrs from now."""
-    _hour = mock_hour or datetime.now().hour
-    hour_limit = _hour + cheapest_cap
-    ret = [v for k, v in hours_dict.items() if k < hour_limit]
-    return ret[0]
+    _now:datetime = datetime.now() if mock_hour is None else datetime.now().replace(hour=mock_hour)
+    hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
+    return [v for v in hours_list if v.dt_start < hour_limit][0]
 
 
 async def async_list_all_hours(

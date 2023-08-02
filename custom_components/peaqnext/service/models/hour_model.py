@@ -20,7 +20,7 @@ class HourModel:
         if self.use_cent:            
             self.price = round(self.price/100,2)        
         self.perkwh=round(self.price / self.sum_consumption_pattern, 2)
-        self.comparer=round(self.price / self.sum_consumption_pattern, 1)
+        self.comparer=round(self.price,1)
 
     @property
     def hour_start(self):

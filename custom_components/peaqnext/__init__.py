@@ -10,7 +10,7 @@ from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 
-from .const import (DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES)
+from .const import (DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
 
 _LOGGER = logging.getLogger(__name__)
 
