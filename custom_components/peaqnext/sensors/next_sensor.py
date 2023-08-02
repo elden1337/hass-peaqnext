@@ -97,6 +97,8 @@ class PeaqNextSensor(SensorEntity):
         return f"{hours} {price}"
 
     def _make_hours_display(self, model: HourModel) -> str:
+        if model is None:
+            return ""
         tomorrow1: str = ""
         tomorrow2: str = ""
         if model.dt_start.day > datetime.now().day:
