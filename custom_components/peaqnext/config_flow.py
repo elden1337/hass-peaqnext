@@ -19,13 +19,12 @@ from .const import (
     CONF_CONSUMPTION_TYPE,
     CONF_TOTAL_CONSUMPTION_IN_KWH,
     CONF_TOTAL_DURATION_IN_MINUTES,
+    CONF_NONHOURS_START,
+    CONF_NONHOURS_END
 )  # pylint:disable=unused-import
-
 
 _LOGGER = logging.getLogger(__name__)
 
-NONHOURS_START = "non_hours_start"
-NONHOURS_END = "non_hours_end"
 
 SENSORS_SCHEMA = vol.Schema(
     {
@@ -33,8 +32,8 @@ SENSORS_SCHEMA = vol.Schema(
         vol.Required(CONF_CONSUMPTION_TYPE): vol.In(CONSUMPTIONTYPE_NAMES),
         vol.Required(CONF_TOTAL_CONSUMPTION_IN_KWH): cv.positive_float,
         vol.Required(CONF_TOTAL_DURATION_IN_MINUTES): cv.positive_float,
-        vol.Optional(NONHOURS_START): cv.multi_select(list(range(0, 24))),
-        vol.Optional(NONHOURS_END): cv.multi_select(list(range(0, 24))),
+        vol.Optional(CONF_NONHOURS_START): cv.multi_select(list(range(0, 24))),
+        vol.Optional(CONF_NONHOURS_END): cv.multi_select(list(range(0, 24))),
         vol.Optional("add_another_sensor"): cv.boolean,
     }
 )
@@ -61,16 +60,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self.data[CONF_SENSORS].append(
                 {
-                    "consumption_type": user_input[CONF_CONSUMPTION_TYPE],
-                    "name": user_input.get(CONF_NAME),
-                    "total_duration_in_minutes": user_input.get(
+                    CONF_CONSUMPTION_TYPE: user_input[CONF_CONSUMPTION_TYPE],
+                    CONF_NAME: user_input.get(CONF_NAME),
+                    CONF_TOTAL_DURATION_IN_MINUTES: user_input.get(
                         CONF_TOTAL_DURATION_IN_MINUTES
                     ),
-                    "total_consumption_in_kwh": user_input.get(
+                    CONF_TOTAL_CONSUMPTION_IN_KWH: user_input.get(
                         CONF_TOTAL_CONSUMPTION_IN_KWH
                     ),
-                    NONHOURS_START: user_input.get(NONHOURS_START,[]),
-                    NONHOURS_END: user_input.get(NONHOURS_END,[])
+                    CONF_NONHOURS_START: user_input.get(CONF_NONHOURS_START,[]),
+                    CONF_NONHOURS_END: user_input.get(CONF_NONHOURS_END,[])
                 }
             )
             if user_input.get("add_another_sensor", False):

@@ -10,7 +10,7 @@ from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 
-from .const import DOMAIN, PLATFORMS, HUB
+from .const import (DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,16 +36,16 @@ async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
 
 async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
     sensors = []
-    for s in conf.data.get("sensors"):
+    for s in conf.data.get(CONF_SENSORS):
         sensors.append(
             NextSensor(
-                consumption_type=ConsumptionType(s["consumption_type"]),
-                name=s["name"],
-                hass_entity_id=nametoid(s["name"]),
-                total_duration_in_seconds=s["total_duration_in_minutes"] * 60,
-                total_consumption_in_kwh=s["total_consumption_in_kwh"],
-                non_hours_start=s.get("non_hours_start", []),
-                non_hours_end=s.get("non_hours_end", []),
+                consumption_type=ConsumptionType(s[CONF_CONSUMPTION_TYPE]),
+                name=s[CONF_NAME],
+                hass_entity_id=nametoid(s[CONF_NAME]),
+                total_duration_in_seconds=s[CONF_TOTAL_DURATION_IN_MINUTES] * 60,
+                total_consumption_in_kwh=s[CONF_TOTAL_CONSUMPTION_IN_KWH],
+                non_hours_start=s.get(CONF_NONHOURS_START, []),
+                non_hours_end=s.get(CONF_NONHOURS_END, []),
             )
         )
     return sensors
