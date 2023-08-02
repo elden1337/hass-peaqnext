@@ -23,6 +23,7 @@ class NextSensor:
     hass_entity_id: str
     total_duration_in_seconds: int
     total_consumption_in_kwh: float
+    default_closest_cheap: int = 12
     use_cent: bool = False
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
@@ -75,7 +76,7 @@ class NextSensor:
                 use_cent=self.use_cent
             ) 
             self._best_start = all_hours_model[list(all_hours_model.keys())[0]]
-            self._best_close_start = await async_cheapest_close_hour(all_hours_model)
+            self._best_close_start = await async_cheapest_close_hour(hours_dict=all_hours_model, cheapest_cap=self.default_closest_cheap)
             self._all_sequences = list(all_hours_model.values())
         except Exception as e:
             _LOGGER.error(

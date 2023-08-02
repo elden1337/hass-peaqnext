@@ -46,6 +46,7 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 total_consumption_in_kwh=s[CONF_TOTAL_CONSUMPTION_IN_KWH],
                 non_hours_start=s.get(CONF_NONHOURS_START, []),
                 non_hours_end=s.get(CONF_NONHOURS_END, []),
+                default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12)
             )
         )
     return sensors

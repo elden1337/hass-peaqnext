@@ -47,11 +47,11 @@ async def async_get_hours_sorted(
     return dict(sorted(ret.items(), key=lambda i: i[1].price))
 
 async def async_cheapest_close_hour(
-    hours_dict: dict[int, HourModel], mock_hour: int = None
+    hours_dict: dict[int, HourModel], cheapest_cap: int, mock_hour: int = None
 ) -> HourModel:
     """returns the cheapeast hour that is less than 12hrs from now."""
     _hour = mock_hour or datetime.now().hour
-    hour_limit = _hour + 12
+    hour_limit = _hour + cheapest_cap
     ret = [v for k, v in hours_dict.items() if k < hour_limit]
     return ret[0]
 
