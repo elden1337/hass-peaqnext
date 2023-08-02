@@ -14,14 +14,15 @@ async def test_prices():
     s.set_hour(4)   
     await s.async_update_sensor([_p.P230729BE,[]])    
     assert s.best_close_start.price == 0.12
-    assert s.best_close_start.hour_start == 15    
+    assert s.best_close_start.dt_start.hour == 15    
 
 @pytest.mark.asyncio
 async def test_prices_use_cent():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10) 
     s.set_hour(4)   
     await s.async_update_sensor([[h*100 for h in _p.P230729BE],[]], use_cent=True)    
-    assert s.best_close_start.hour_start == 15
+    print(s.best_close_start)
+    assert s.best_close_start.dt_start.hour == 15
     assert s.best_close_start.price == 0.12
 
 @pytest.mark.asyncio
@@ -29,7 +30,7 @@ async def test_flat_prices():
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=1800, total_consumption_in_kwh=10) 
     s.set_hour(1)   
     await s.async_update_sensor([_p.PFLAT,[]])    
-    assert s.best_close_start.hour_start == 1
+    assert s.best_close_start.dt_start.hour == 1
     assert s.best_close_start.price == 10
 
 @pytest.mark.asyncio
@@ -37,7 +38,7 @@ async def test_flat_prices_use_cent():
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=1800, total_consumption_in_kwh=10) 
     s.set_hour(1)   
     await s.async_update_sensor([[p *100 for p in _p.PFLAT],[]],use_cent=True)
-    assert s.best_close_start.hour_start == 1
+    assert s.best_close_start.dt_start.hour == 1
     assert s.best_close_start.price == 10
 
 @pytest.mark.asyncio
@@ -89,7 +90,7 @@ async def test_start_nonhours():
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10,non_hours_start=nh_start) 
     s.set_hour(2)   
     await s.async_update_sensor([_p.P230729BE,[]], use_cent=False)        
-    starts = [h.hour_start for h in s.all_sequences]
+    starts = [h.dt_start.hour for h in s.all_sequences]
     assert all([h not in starts for h in nh_start])
 
 @pytest.mark.asyncio
@@ -98,7 +99,7 @@ async def test_end_nonhours():
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10,non_hours_end=nh_end)
     s.set_hour(2)   
     await s.async_update_sensor([_p.P230729BE,[]], use_cent=False)        
-    ends = [h.hour_end for h in s.all_sequences]
+    ends = [h.dt_end.hour for h in s.all_sequences]
     assert all([h not in ends for h in nh_end])
 
 @pytest.mark.asyncio
@@ -108,9 +109,7 @@ async def test_end_nonhours_washer():
     s.set_hour(21)   
     s.set_date(date(2023,7,31))
     await s.async_update_sensor([_p.P230731,_p.P230801])        
-    ends = [h.hour_end for h in s.all_sequences]
-    for h in s.all_sequences:
-        print(h.hour_start, h.hour_end, h.hour_end in nh_end)
+    ends = [h.dt_end.hour for h in s.all_sequences]
     assert all([h not in ends for h in nh_end])
     #assert 1 > 2    
 
@@ -121,8 +120,8 @@ async def test_start_and_end_nonhours():
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10,non_hours_end=nh_end, non_hours_start=nh_start)
     s.set_hour(2)   
     await s.async_update_sensor([_p.P230729BE,[]], use_cent=False)        
-    ends = [h.hour_end for h in s.all_sequences]
-    starts = [h.hour_start for h in s.all_sequences]
+    ends = [h.dt_end.hour for h in s.all_sequences]
+    starts = [h.dt_start.hour for h in s.all_sequences]
     assert all([h not in ends for h in nh_end])
     assert all([h not in starts for h in nh_start])
 
