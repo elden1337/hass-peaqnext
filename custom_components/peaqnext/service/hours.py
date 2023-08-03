@@ -54,6 +54,7 @@ def cheapest_hour(
     _dt = datetime.combine(_date, datetime.min.time())
     _now:datetime = _dt if mock_hour is None else _dt.replace(hour=mock_hour)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
+    print(hour_limit)
     ret = [v for v in hours_list if v.dt_start < hour_limit]
     try:
         return ret[0]

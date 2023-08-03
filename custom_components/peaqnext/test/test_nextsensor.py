@@ -26,7 +26,7 @@ class MockNordpool:
 async def test_prices():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10) 
     s.set_hour(4)   
-    await s.async_update_sensor((_p.P230729BE,[]))    
+    await s.async_update_sensor((_p.P230729BE,[]))   
     assert s.best_close_start.price == 0.12
     assert s.best_close_start.dt_start.hour == 15    
 
@@ -188,5 +188,5 @@ async def test_midnight_with_nordpool():
     for h in sorted(s.all_sequences, key=lambda x: x.idx):
         print(h)
     assert len(s.all_sequences) == 23
-    assert 1 > 2
+    #assert 1 > 2
 

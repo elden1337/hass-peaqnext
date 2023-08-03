@@ -28,8 +28,8 @@ class NextSensor:
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
-    _mock_hour: int = datetime.now().hour
-    _mock_date: date = datetime.now().date()
+    _mock_hour: int|None = None
+    _mock_date: date|None = None
 
     def __post_init__(self) -> None:
         self._best_start = HourModel(0, 0, 0, 0)
@@ -60,8 +60,10 @@ class NextSensor:
 
     def _get_dt_now(self) -> datetime:
         """returns start of current hour, mockhour and date if applicable."""
-        return datetime.now().replace(minute=0, second=0, microsecond=0)
-
+        _hour = self._mock_hour if self._mock_hour is not None else datetime.now().hour
+        _date = self._mock_date if self._mock_date is not None else datetime.now().date()
+        return datetime.combine(_date, datetime.min.time()).replace(hour=_hour)
+        
     def set_hour(self, hour) -> None:
         self._mock_hour = hour
 
