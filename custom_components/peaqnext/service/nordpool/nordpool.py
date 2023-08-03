@@ -70,7 +70,7 @@ class NordPoolUpdater:
                 await _result.set_model(ret)
                 if await self.async_update_set_prices(_result):
                     await self.hub.async_update_prices(
-                        [self.prices, self.prices_tomorrow]
+                        (self.prices, self.prices_tomorrow)
                     )
                     self._is_initialized = True
             else:
@@ -83,14 +83,13 @@ class NordPoolUpdater:
         if self.prices != result.today:
             self.prices = result.today
             ret = True
-        if result.tomorrow_valid:
+        if result.tomorrow_valid and result.tomorrow is not None:
             if self.prices_tomorrow != result.tomorrow:
                 self.prices_tomorrow = result.tomorrow
                 ret = True
         else:
-            if self.prices_tomorrow:
-                self.prices_tomorrow = []
-                ret = True
+            self.prices_tomorrow = []
+            ret = True
         self._currency = result.currency
         self._use_cent = result.price_in_cent
         self.state = result.state

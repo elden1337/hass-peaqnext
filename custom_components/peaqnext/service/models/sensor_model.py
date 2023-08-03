@@ -56,7 +56,7 @@ class NextSensor:
     def set_date(self, date) -> None:
         self._mock_date = date
 
-    async def async_update_sensor(self, prices: list, use_cent:bool = False) -> None:
+    async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False) -> None:
         self.use_cent = use_cent
         segments: list = await async_calculate_consumption_per_hour(
             self.total_consumption_in_kwh,
