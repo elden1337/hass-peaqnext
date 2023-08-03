@@ -47,7 +47,7 @@ def create_prices_dict(prices: tuple[list,list], hour: int) -> dict[int, float]:
     return prices_dict
 
 
-async def async_cheapest_hour(
+def cheapest_hour(
     hours_list: list[HourModel], cheapest_cap: int = None, mock_hour: int = None, mock_date: date = None
 ) -> HourModel:
     _date: date = datetime.now().date() if mock_date is None else mock_date

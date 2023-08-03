@@ -8,7 +8,7 @@ from custom_components.peaqnext.service.segments import (
 )
 from custom_components.peaqnext.service.hours import (
     async_get_hours_sorted,
-    async_cheapest_hour,
+    cheapest_hour,
 )
 from custom_components.peaqnext.service.models.hour_model import HourModel
 import logging
@@ -27,8 +27,6 @@ class NextSensor:
     use_cent: bool = False
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
-    _best_start: HourModel = field(init=False)
-    _best_close_start: HourModel = field(init=False)
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
     _mock_hour: int = datetime.now().hour
     _mock_date: date = datetime.now().date()
@@ -40,15 +38,29 @@ class NextSensor:
 
     @property
     def best_start(self) -> HourModel:
-        return self._best_start
+        return cheapest_hour(
+            hours_list=self.all_sequences, 
+            cheapest_cap=None, 
+            mock_hour=self._mock_hour, 
+            mock_date=self._mock_date
+            )
 
     @property
     def best_close_start(self) -> HourModel:
-        return self._best_close_start
+        return cheapest_hour(
+            hours_list=self.all_sequences, 
+            cheapest_cap=self.default_closest_cheap, 
+            mock_hour=self._mock_hour, 
+            mock_date=self._mock_date
+            )
 
     @property
     def all_sequences(self) -> list[HourModel]:
-        return self._all_sequences
+        return [h for h in self._all_sequences if h.dt_start >= self._get_dt_now()]
+
+    def _get_dt_now(self) -> datetime:
+        """returns start of current hour, mockhour and date if applicable."""
+        return datetime.now().replace(minute=0, second=0, microsecond=0)
 
     def set_hour(self, hour) -> None:
         self._mock_hour = hour
@@ -64,7 +76,7 @@ class NextSensor:
             self.consumption_type,
         )
         try:            
-            all_hours_model = await async_get_hours_sorted(
+            self._all_sequences = await async_get_hours_sorted(
                 prices=prices,
                 consumption_pattern=segments,
                 non_hours_start=self.non_hours_start,
@@ -78,17 +90,3 @@ class NextSensor:
             _LOGGER.error(
                 f"Unable to calculate best hours for sensor: {self.hass_entity_id}. Exception: {e}"
             )
-            return
-        try: 
-            self._best_start = await async_cheapest_hour(hours_list=all_hours_model, cheapest_cap=None, mock_hour=self._mock_hour, mock_date=self._mock_date)
-        except Exception as e:
-            _LOGGER.error(
-                f"Unable to calculate best_start. Exception: {e}"
-            )
-        try:
-            self._best_close_start = await async_cheapest_hour(hours_list=all_hours_model, cheapest_cap=self.default_closest_cheap, mock_hour=self._mock_hour, mock_date=self._mock_date)
-        except Exception as e:
-            _LOGGER.error(
-                f"Unable to calculate best_close_start. Exception: {e}"
-            )
-        self._all_sequences = all_hours_model
