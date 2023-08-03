@@ -31,14 +31,8 @@ class NextSensor:
     _mock_hour: int|None = None
     _mock_date: date|None = None
 
-    def __post_init__(self) -> None:
-        self._best_start = HourModel(0, 0, 0, 0)
-        self._best_close_start = HourModel(0, 0, 0, 0)
-        self._all_sequences = []
-
     @property
     def best_start(self) -> HourModel:
-        print("best_start")
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=None, 
