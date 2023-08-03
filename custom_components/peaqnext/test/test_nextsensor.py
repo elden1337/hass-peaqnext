@@ -190,3 +190,25 @@ async def test_midnight_with_nordpool():
     assert len(s.all_sequences) == 23
     #assert 1 > 2
 
+
+@pytest.mark.asyncio
+async def test_hub_updates_sensor():
+    hub = Hub(None, test=True)
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
+    await hub.async_setup([s])
+    np1 = MockNordpool(today=_p.P230731, tomorrow=[], average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=False)
+    await hub.nordpool.async_set_nordpool(np1)    
+    assert len(s.all_sequences) == 23
+    s.set_hour(13)
+    np2 = MockNordpool(today=_p.P230731, tomorrow=_p.P230801, average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=True)
+    await hub.nordpool.async_set_nordpool(np2)
+    tt = await hub.async_get_sensor_updates(s)
+    s.set_hour(19)
+    tt2 = await hub.async_get_sensor_updates(s)
+    assert tt2.get("best_close_start") != tt.get("best_close_start")
+    
+    
+
+

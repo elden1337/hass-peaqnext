@@ -89,9 +89,13 @@ class PeaqNextSensor(SensorEntity):
         return ret
 
     def _make_price(self, model: HourModel) -> str:
+        if model is None:
+            return ""
         return f"({model.price} {self.hub.nordpool.currency})"
 
     def _make_string(self, model: HourModel) -> str:
+        if model is None:
+            return ""
         return f"{self._make_hours_display(model)} {self._make_price(model)}"
 
     def _make_hours_display(self, model: HourModel) -> str:

@@ -50,6 +50,9 @@ class Hub:
                 (self.nordpool.prices, self.nordpool.prices_tomorrow)
             )
         active_sensor: NextSensor = self.sensors_dict.get(sensor_id, None)
+        return await self.async_get_sensor_updates(active_sensor)
+    
+    async def async_get_sensor_updates(self, active_sensor: NextSensor) -> dict:
         if active_sensor is None:
             return {}
         return {
