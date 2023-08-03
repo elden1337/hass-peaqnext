@@ -223,10 +223,10 @@ async def test_hub_updates_sensor_2():
     np2 = MockNordpool(today=_p.P230731, tomorrow=_p.P230801, average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=True)
     await hub.nordpool.async_set_nordpool(np2)
     tt = await hub.async_get_sensor_updates(s)
-    print(f"best: {tt.get('best_start')}")
+    print(f"best: {tt.get('best_close_start')}")
     s.set_hour(19)
     tt2 = await hub.async_get_sensor_updates(s)
-    print(f"best: {tt2.get('best_start')}")
+    print(f"best: {tt2.get('best_close_start')}")
     assert 1 > 2
     
     

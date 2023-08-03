@@ -1,6 +1,8 @@
 from custom_components.peaqnext.service.models.hour_model import HourModel
 from datetime import datetime, timedelta, date
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_get_hours_sorted(
     prices: tuple[list,list],
@@ -14,11 +16,10 @@ async def async_get_hours_sorted(
 ) -> list[HourModel]:
     _hour = datetime.now().hour if mock_hour is None else mock_hour
     sequences = await async_list_all_hours(create_prices_dict(prices, _hour), consumption_pattern)
-    _start_date = mock_date if mock_date else datetime.now().date()
-    _start = datetime.combine(_start_date, datetime.min.time())
+    _start = _get_datetime(mock_hour, mock_date)
     ret = [] 
     for s in sequences:
-        _dt_start = _start +timedelta(hours=s)
+        _dt_start = _start +timedelta(hours=s - _start.hour)
         _end = _dt_start + timedelta(seconds=duration_in_seconds)
         if _blocked_hour(s, _end.hour, non_hours_start, non_hours_end):
             continue
@@ -46,13 +47,16 @@ def create_prices_dict(prices: tuple[list,list], hour: int) -> dict[int, float]:
     prices_dict.update({k + 24: v for k, v in enumerate(prices[1])})
     return prices_dict
 
+def _get_datetime(mock_hour: int = None, mock_date: date = None) -> datetime:
+    _date: date = datetime.now().date() if mock_date is None else mock_date
+    _dt = datetime.combine(_date, datetime.now().time().replace(minute=0, second=0, microsecond=0))
+    _now:datetime = _dt if mock_hour is None else _dt.replace(hour=mock_hour)
+    return _now
 
 def cheapest_hour(
     hours_list: list[HourModel], cheapest_cap: int|None = None, mock_hour: int = None, mock_date: date = None
 ) -> HourModel:
-    _date: date = datetime.now().date() if mock_date is None else mock_date
-    _dt = datetime.combine(_date, datetime.min.time())
-    _now:datetime = _dt if mock_hour is None else _dt.replace(hour=mock_hour)
+    _now = _get_datetime(mock_hour, mock_date)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
     ret = [v for v in hours_list if v.dt_start < hour_limit]
     try:
@@ -62,8 +66,8 @@ def cheapest_hour(
             print("ret[0]", ret[0])
         return ret[0]
     except Exception as e:
-        print(e)
-        return None
+        _LOGGER.error(f"Unable to get cheapest hour. Exception: {e}. Data: hour_limit:{hour_limit}, available hours:{[h.dt_start.strftime('%d, %H:%M') for h in hours_list]}")
+        return HourModel(0, 0, 0, 0)
 
 
 async def async_list_all_hours(
