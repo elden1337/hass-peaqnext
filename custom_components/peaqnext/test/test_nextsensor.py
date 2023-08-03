@@ -1,6 +1,6 @@
 from statistics import mean
 import pytest
-from custom_components.peaqnext.service.hours import async_cheapest_hour
+from custom_components.peaqnext.service.hours import cheapest_hour
 from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
@@ -163,7 +163,7 @@ async def test_cheapest_hour():
     s.set_date(date(2023,7,30))
     s.set_hour(20)
     await s.async_update_sensor([_p.P230731,_p.P230801])
-    tt = await async_cheapest_hour(s.all_sequences, cheapest_cap=None, mock_hour=s._mock_hour, mock_date=s._mock_date)
+    tt = cheapest_hour(s.all_sequences, cheapest_cap=None, mock_hour=s._mock_hour, mock_date=s._mock_date)
     
 
 @pytest.mark.asyncio
