@@ -14,17 +14,18 @@ class Hub:
     hub_id = 33512
     hubname = "PeaqNext"
 
-    def __init__(self, hass) -> Any:
-        self.state_machine: HomeAssistant = hass
+    def __init__(self, hass, test:bool = False) -> Any:
         self.sensors: list[NextSensor] = []
-        self.nordpool = NordPoolUpdater(self)
+        self.nordpool = NordPoolUpdater(self, test)
         self.latest_nordpool_update = 0
         self.sensors_dict: dict[str:NextSensor] = {}
-        async_track_state_change(
-            self.state_machine,
-            [self.nordpool.nordpool_entity],
-            self.async_state_changed,
-        )
+        if not test:
+            self.state_machine: HomeAssistant = hass
+            async_track_state_change(
+                self.state_machine,
+                [self.nordpool.nordpool_entity],
+                self.async_state_changed,
+            )
 
     async def async_setup(self, sensors: list[NextSensor]) -> None:
         self.sensors = sensors

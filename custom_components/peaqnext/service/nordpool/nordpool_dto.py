@@ -23,8 +23,16 @@ class NordpoolDTO:
             )
             return
         self.tomorrow_valid = bool(ret.attributes.get("tomorrow_valid", False))
-        self.tomorrow = list(ret.attributes.get("tomorrow", []))
+        _tomorrow = ret.attributes.get("tomorrow", [])
+        if _tomorrow is not None:
+            self.tomorrow = list(_tomorrow)
+        else:
+            self.tomorrow = []
         self.currency = str(ret.attributes.get("currency", ""))
         self.state = ret.state
         self.average = float(str(ret.attributes.get("average", 0)))
         self.price_in_cent = bool(ret.attributes.get("price_in_cent", False))
+
+
+
+

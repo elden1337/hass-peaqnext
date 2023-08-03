@@ -9,9 +9,8 @@ NORDPOOL = "nordpool"
 
 
 class NordPoolUpdater:
-    def __init__(self, hub):
+    def __init__(self, hub, test:bool = False):
         self.hub = hub
-        self.state_machine = hub.state_machine
         self._nordpool_entity: str | None = None
         self._is_initialized: bool = False
         self._currency: str = ""
@@ -19,7 +18,9 @@ class NordPoolUpdater:
         self._prices: list[float] = []
         self._prices_tomorrow: list[float] = []
         self._use_cent: bool = False
-        self.setup()
+        if not test:
+            self.state_machine = hub.state_machine
+            self.setup()
 
     @property
     def is_initialized(self) -> bool:
@@ -65,18 +66,22 @@ class NordPoolUpdater:
     async def async_update_nordpool(self) -> None:
         if self.nordpool_entity is not None:
             ret = self.state_machine.states.get(self.nordpool_entity)
-            _result = NordpoolDTO()
             if ret is not None:
-                await _result.set_model(ret)
-                if await self.async_update_set_prices(_result):
-                    await self.hub.async_update_prices(
-                        (self.prices, self.prices_tomorrow)
-                    )
-                    self._is_initialized = True
+                await self.async_set_nordpool(ret)
             else:
                 _LOGGER.debug(
                     f"Could not get nordpool-prices. Nordpool-entity: {self.nordpool_entity}. Retrying..."
                 )
+
+    async def async_set_nordpool(self, ret) -> None:
+        _result = NordpoolDTO()
+        await _result.set_model(ret)
+        if await self.async_update_set_prices(_result):
+            await self.hub.async_update_prices(
+                (self.prices, self.prices_tomorrow)
+            )
+            self._is_initialized = True
+
 
     async def async_update_set_prices(self, result: NordpoolDTO) -> bool:
         ret = False

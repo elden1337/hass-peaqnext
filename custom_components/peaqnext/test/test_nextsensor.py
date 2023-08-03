@@ -1,5 +1,7 @@
+from statistics import mean
 import pytest
 from custom_components.peaqnext.service.hours import async_cheapest_hour
+from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
@@ -7,6 +9,18 @@ from custom_components.peaqnext.service.models.hour_model import HourModel
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 import custom_components.peaqnext.test.prices as _p
 from datetime import date, datetime, timedelta
+
+class MockNordpool:
+    def __init__(self, state:float=0, today:list=[], tomorrow:list=[], average:float=0, currency:str="", price_in_cent:bool=False, tomorrow_valid:bool=False) -> None:
+        self.state = state
+        self.attributes = {
+            "today": today,
+            "tomorrow": tomorrow,
+            "tomorrow_valid": tomorrow_valid,
+            "average": average,
+            "currency": currency,
+            "price_in_cent": price_in_cent,
+        }
 
 @pytest.mark.asyncio
 async def test_prices():    
@@ -151,3 +165,28 @@ async def test_cheapest_hour():
     await s.async_update_sensor([_p.P230731,_p.P230801])
     tt = await async_cheapest_hour(s.all_sequences, cheapest_cap=None, mock_hour=s._mock_hour, mock_date=s._mock_date)
     
+
+@pytest.mark.asyncio
+async def test_midnight_with_nordpool():
+    hub = Hub(None, test=True)
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
+    await hub.async_setup([s])
+    np1 = MockNordpool(today=_p.P230731, tomorrow=[], average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=False)
+    await hub.nordpool.async_set_nordpool(np1)    
+    assert len(s.all_sequences) == 23
+    s.set_hour(13)
+    np2 = MockNordpool(today=_p.P230731, tomorrow=_p.P230801, average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=True)
+    await hub.nordpool.async_set_nordpool(np2)
+    assert len(s.all_sequences) == 34
+    s.set_date(date(2023,8,1))
+    s.set_hour(0)
+    np3 = MockNordpool(today=_p.P230801, tomorrow=None, average=mean(_p.P230801), currency="SEK", price_in_cent=False, tomorrow_valid=False)
+    await hub.nordpool.async_set_nordpool(np3)
+    # await s.async_update_sensor((_p.P230801,[]))
+    for h in sorted(s.all_sequences, key=lambda x: x.idx):
+        print(h)
+    assert len(s.all_sequences) == 23
+    assert 1 > 2
+
