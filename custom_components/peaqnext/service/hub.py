@@ -31,7 +31,7 @@ class Hub:
         for s in self.sensors:
             self.sensors_dict[s.hass_entity_id] = s
 
-    async def async_update_prices(self, prices: list) -> None:
+    async def async_update_prices(self, prices: tuple[list,list]) -> None:
         for s in self.sensors:
             try:
                 await s.async_update_sensor(prices, self.nordpool.use_cent)
@@ -45,7 +45,7 @@ class Hub:
             await self.nordpool.async_update_nordpool()
             self.latest_nordpool_update = time.time()
             await self.async_update_prices(
-                [self.nordpool.prices, self.nordpool.prices_tomorrow]
+                (self.nordpool.prices, self.nordpool.prices_tomorrow)
             )
         active_sensor: NextSensor = self.sensors_dict.get(sensor_id, None)
         if active_sensor is None:

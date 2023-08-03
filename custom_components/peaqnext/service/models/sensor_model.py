@@ -65,8 +65,7 @@ class NextSensor:
         )
         try:            
             all_hours_model = await async_get_hours_sorted(
-                prices=prices[0],
-                prices_tomorrow=prices[1],
+                prices=prices,
                 consumption_pattern=segments,
                 non_hours_start=self.non_hours_start,
                 non_hours_end=self.non_hours_end,
