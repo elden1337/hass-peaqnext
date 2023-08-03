@@ -38,6 +38,7 @@ class NextSensor:
 
     @property
     def best_start(self) -> HourModel:
+        print("best_start")
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=None, 

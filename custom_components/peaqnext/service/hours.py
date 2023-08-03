@@ -48,17 +48,21 @@ def create_prices_dict(prices: tuple[list,list], hour: int) -> dict[int, float]:
 
 
 def cheapest_hour(
-    hours_list: list[HourModel], cheapest_cap: int = None, mock_hour: int = None, mock_date: date = None
+    hours_list: list[HourModel], cheapest_cap: int|None = None, mock_hour: int = None, mock_date: date = None
 ) -> HourModel:
     _date: date = datetime.now().date() if mock_date is None else mock_date
     _dt = datetime.combine(_date, datetime.min.time())
     _now:datetime = _dt if mock_hour is None else _dt.replace(hour=mock_hour)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
-    print(hour_limit)
     ret = [v for v in hours_list if v.dt_start < hour_limit]
     try:
+        if cheapest_cap is None:
+            print("hour_limit", hour_limit)
+            print("now", _now)
+            print("ret[0]", ret[0])
         return ret[0]
-    except:
+    except Exception as e:
+        print(e)
         return None
 
 
