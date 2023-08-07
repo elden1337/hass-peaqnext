@@ -83,7 +83,8 @@ class NextSensor:
                 non_hours_end=self.non_hours_end,
                 duration_in_seconds=self.total_duration_in_seconds,
                 mock_dt =self._get_dt_now(),
-                use_cent=self.use_cent
+                use_cent=self.use_cent,
+                currency=currency,
             )
         except Exception as e:
             _LOGGER.error(

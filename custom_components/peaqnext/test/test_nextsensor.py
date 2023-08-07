@@ -213,25 +213,53 @@ async def test_hub_updates_sensor():
 async def test_hub_updates_sensor_2():
     hub = Hub(None, test=True)
     s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
-    # s.set_hour(0)
-    # s.set_date(date(2023,7,30))
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
     await hub.async_setup([s])
-    np1 = MockNordpool(today=_p.P230731, tomorrow=[], average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=False)
+    np1 = MockNordpool(today=_p.P230731, tomorrow=[], average=mean(_p.P230731), currency="EUR", price_in_cent=False, tomorrow_valid=False)
     await hub.nordpool.async_set_nordpool(np1)    
-    #assert len(s.all_sequences) == 23
-    #s.set_hour(13)
-    np2 = MockNordpool(today=_p.P230731, tomorrow=_p.P230801, average=mean(_p.P230731), currency="SEK", price_in_cent=False, tomorrow_valid=True)
+    assert len(s.all_sequences) == 23
+    s.set_hour(13)
+    np2 = MockNordpool(today=_p.P230731, tomorrow=_p.P230801, average=mean(_p.P230731), currency="EUR", price_in_cent=False, tomorrow_valid=True)
     await hub.nordpool.async_set_nordpool(np2)
     tt = await hub.async_get_sensor_updates(s)
     print(f"best: {tt.get('best_close_start')}")
-    #s.set_hour(19)
+    s.set_hour(19)
     tt2 = await hub.async_get_sensor_updates(s)
     print(f"best: {tt2.get('best_close_start')}")
     ttt = tt.get("all_sequences")
     for t in ttt:
         print(t.dt_start, t.dt_end, t.price)
     assert 1 > 2
-    
-    
+
+
+@pytest.mark.asyncio
+async def test_hub_rounding_sek():
+    hub = Hub(None, test=True)
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
+    await hub.async_setup([s])
+    np1 = MockNordpool(today=_p.P230729BE, tomorrow=[], average=mean(_p.P230729BE), currency="SEK", price_in_cent=False, tomorrow_valid=False)
+    await hub.nordpool.async_set_nordpool(np1)    
+    tt = await hub.async_get_sensor_updates(s)
+    comparers = [t.comparer for t in tt.get("all_sequences")]
+    assert all([len(str(c).split('.')[1]) <= 1 for c in comparers])
+
+@pytest.mark.asyncio
+async def test_hub_rounding_eur():
+    hub = Hub(None, test=True)
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
+    await hub.async_setup([s])
+    np1 = MockNordpool(today=_p.P230729BE, tomorrow=[], average=mean(_p.P230729BE), currency="EUR", price_in_cent=False, tomorrow_valid=False)
+    await hub.nordpool.async_set_nordpool(np1)    
+    tt = await hub.async_get_sensor_updates(s)
+    comparers = [t.comparer for t in tt.get("all_sequences")]
+    for t in comparers:
+        print(t)
+    assert all([len(str(c).split('.')[1]) <= 2 for c in comparers])
+    assert any([len(str(c).split('.')[1]) > 1 for c in comparers])
 
 
