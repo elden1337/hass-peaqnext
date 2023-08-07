@@ -107,14 +107,6 @@ class PeaqNextSensor(SensorEntity):
             tomorrow1 = "⁺¹"
         if model.dt_end.day > datetime.now().day:
             tomorrow2 = "⁺¹"
-        return f"{model.dt_start.hour}:00{tomorrow1}-{model.dt_end.hour}:{self._string_minute(self._duration_in_minutes, model.dt_start.hour)}{tomorrow2}"
-
-    @staticmethod
-    def _string_minute(dur_minutes: int, hour_start: int) -> str:
-        try:
-            dtstart = datetime(2023, 1, 1, hour_start, 0, 0)
-            dtend = dtstart + timedelta(minutes=dur_minutes)
-            ret = dtend.minute
-            return f"{ret:02d}"
-        except Exception as e:
-            return "00"
+        ret = f"{model.dt_start.strftime('%H:%M')}{tomorrow1}-{model.dt_end.strftime('%H:%M')}{tomorrow2}"
+        return f">> {ret}" if model.dt_start.day == datetime.now().day and model.dt_start.hour == datetime.now().hour else ret
+        
