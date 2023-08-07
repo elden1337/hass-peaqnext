@@ -163,7 +163,7 @@ async def test_cheapest_hour():
     s.set_date(date(2023,7,30))
     s.set_hour(20)
     await s.async_update_sensor([_p.P230731,_p.P230801])
-    tt = cheapest_hour(s.all_sequences, cheapest_cap=None, mock_hour=s._mock_hour, mock_date=s._mock_date)
+    tt = cheapest_hour(s.all_sequences, cheapest_cap=None, mock_dt=s._get_dt_now())
     
 
 @pytest.mark.asyncio

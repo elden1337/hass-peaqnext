@@ -30,14 +30,14 @@ class NextSensor:
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
     _mock_hour: int|None = None
     _mock_date: date|None = None
+    _mock_minute: int|None = None
 
     @property
     def best_start(self) -> HourModel:
         return cheapest_hour(
             hours_list=self.all_sequences, 
-            cheapest_cap=None, 
-            mock_hour=self._mock_hour, 
-            mock_date=self._mock_date
+            cheapest_cap=None,
+            mock_dt=self._get_dt_now() 
             )
 
     @property
@@ -45,8 +45,7 @@ class NextSensor:
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=self.default_closest_cheap, 
-            mock_hour=self._mock_hour, 
-            mock_date=self._mock_date
+            mock_dt=self._get_dt_now() 
             )
 
     @property
@@ -56,14 +55,18 @@ class NextSensor:
     def _get_dt_now(self) -> datetime:
         """returns start of current hour, mockhour and date if applicable."""
         _hour = self._mock_hour if self._mock_hour is not None else datetime.now().hour
+        _minute = self._mock_minute if self._mock_minute is not None else datetime.now().minute
         _date = self._mock_date if self._mock_date is not None else datetime.now().date()
-        return datetime.combine(_date, datetime.min.time()).replace(hour=_hour)
+        return datetime.combine(_date, datetime.min.time()).replace(hour=_hour, minute=_minute)
         
     def set_hour(self, hour) -> None:
         self._mock_hour = hour
 
     def set_date(self, date) -> None:
         self._mock_date = date
+
+    def set_minute(self, minute) -> None:
+        self._mock_minute = minute
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False) -> None:
         self.use_cent = use_cent
@@ -79,8 +82,7 @@ class NextSensor:
                 non_hours_start=self.non_hours_start,
                 non_hours_end=self.non_hours_end,
                 duration_in_seconds=self.total_duration_in_seconds,
-                mock_hour=self._mock_hour,
-                mock_date = self._mock_date,
+                mock_dt =self._get_dt_now(),
                 use_cent=self.use_cent
             )
         except Exception as e:

@@ -10,13 +10,13 @@ async def async_get_hours_sorted(
     non_hours_start: list[int],
     non_hours_end: list[int],
     duration_in_seconds: int,
-    mock_hour: int|None = None,
-    mock_date: date|None = None,
+    mock_dt: datetime|None = None,
+    # mock_hour: int|None = None,
+    # mock_date: date|None = None,
     use_cent: bool = False
 ) -> list[HourModel]:
-    _hour = datetime.now().hour if mock_hour is None else mock_hour
-    sequences = await async_list_all_hours(create_prices_dict(prices, _hour), consumption_pattern)
-    _start = _get_datetime(mock_hour, mock_date)
+    _start = _get_datetime(mock_dt)
+    sequences = await async_list_all_hours(create_prices_dict(prices, mock_dt.hour), consumption_pattern)
     ret = [] 
     for s in sequences:
         _dt_start = _start +timedelta(hours=s - _start.hour)
@@ -47,16 +47,13 @@ def create_prices_dict(prices: tuple[list,list], hour: int) -> dict[int, float]:
     prices_dict.update({k + 24: v for k, v in enumerate(prices[1])})
     return prices_dict
 
-def _get_datetime(mock_hour: int = None, mock_date: date = None) -> datetime:
-    _date: date = datetime.now().date() if mock_date is None else mock_date
-    _dt = datetime.combine(_date, datetime.now().time().replace(minute=0, second=0, microsecond=0))
-    _now:datetime = _dt if mock_hour is None else _dt.replace(hour=mock_hour)
-    return _now
+def _get_datetime(mock_dt: datetime = None) -> datetime:
+    return mock_dt if mock_dt is not None else datetime.now()
 
 def cheapest_hour(
-    hours_list: list[HourModel], cheapest_cap: int|None = None, mock_hour: int = None, mock_date: date = None
+    hours_list: list[HourModel], cheapest_cap: int|None = None, mock_dt: datetime = None
 ) -> HourModel:
-    _now = _get_datetime(mock_hour, mock_date)
+    _now = _get_datetime(mock_dt)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
     ret = [v for v in hours_list if v.dt_start < hour_limit]
     try:
