@@ -29,6 +29,7 @@ class PeaqNextSensor(SensorEntity):
         self._consumption_type = None
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
+        self._raw_start = None
         self._non_hours_start = []
         self._non_hours_end = []
         self._closest_cheap_hour = None
@@ -43,6 +44,7 @@ class PeaqNextSensor(SensorEntity):
 
     async def async_update(self) -> None:
         status = await self.hub.async_get_updates(nametoid(self.given_name))
+        self._raw_start = self._set_raw_start(status["best_close_start"].dt_start)
         self._all_seqeuences = self._make_dict(status.get("all_sequences", []))
         self._state = self._make_string(status["best_close_start"])
         self._consumption_type = status["consumption_type"]
@@ -65,6 +67,7 @@ class PeaqNextSensor(SensorEntity):
             attr_dict["Non hours start"] = self._non_hours_start
         if len(self._non_hours_end) > 0:
             attr_dict["Non hours end"] = self._non_hours_end
+        attr_dict["raw_start"]= self._raw_start
         return attr_dict
 
     @property
@@ -94,19 +97,35 @@ class PeaqNextSensor(SensorEntity):
         return f"({model.price} {self.hub.nordpool.currency})"
 
     def _make_string(self, model: HourModel) -> str:
-        if model is None:
+        if not self._check_hourmodel(model):
             return ""
         return f"{self._make_hours_display(model)} {self._make_price(model)}"
 
-    def _make_hours_display(self, model: HourModel) -> str:
+    @staticmethod
+    def _set_raw_start(start: datetime) -> str:
+        return start.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    @staticmethod
+    def _check_hourmodel(model: HourModel) -> bool:
         if model is None:
+            return False
+        elif not model.is_valid:
+            return False
+        return True
+
+    @staticmethod
+    def _get_tomorrow_assignation(comparer: bool) -> str:
+        return "⁺¹" if comparer else ""
+
+    @staticmethod
+    def _add_now_to_date(model: HourModel) -> str:
+        return ">> " if model.dt_start.day == datetime.now().day and model.dt_start.hour == datetime.now().hour else ""
+
+    def _make_hours_display(self, model: HourModel) -> str:
+        if not self._check_hourmodel(model):
             return ""
-        tomorrow1: str = ""
-        tomorrow2: str = ""
-        if model.dt_start.day > datetime.now().day:
-            tomorrow1 = "⁺¹"
-        if model.dt_end.day > datetime.now().day:
-            tomorrow2 = "⁺¹"
+        tomorrow1: str = self._get_tomorrow_assignation(model.dt_start.day > datetime.now().day)
+        tomorrow2: str = self._get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
         ret = f"{model.dt_start.strftime('%H:%M')}{tomorrow1}-{model.dt_end.strftime('%H:%M')}{tomorrow2}"
-        return f">> {ret}" if model.dt_start.day == datetime.now().day and model.dt_start.hour == datetime.now().hour else ret
+        return f"{self._add_now_to_date(model)}{ret}"
         
