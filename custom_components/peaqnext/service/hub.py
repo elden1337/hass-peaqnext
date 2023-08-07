@@ -36,7 +36,7 @@ class Hub:
     async def async_update_prices(self, prices: tuple[list,list]) -> None:
         for s in self.sensors:
             try:
-                await s.async_update_sensor(prices, self.nordpool.use_cent)
+                await s.async_update_sensor(prices, self.nordpool.use_cent, self.nordpool.currency)
             except Exception as e:
                 _LOGGER.error(
                     f"Unable to update sensor: {s.hass_entity_id}. Exception: {e}"

@@ -11,9 +11,8 @@ async def async_get_hours_sorted(
     non_hours_end: list[int],
     duration_in_seconds: int,
     mock_dt: datetime|None = None,
-    # mock_hour: int|None = None,
-    # mock_date: date|None = None,
-    use_cent: bool = False
+    use_cent: bool = False,
+    currency: str = "sek",
 ) -> list[HourModel]:
     _start = _get_datetime(mock_dt)
     sequences = await async_list_all_hours(create_prices_dict(prices, mock_dt.hour), consumption_pattern)
@@ -29,7 +28,8 @@ async def async_get_hours_sorted(
             idx=s,
             price=sequences[s],
             use_cent=use_cent,
-            sum_consumption_pattern=sum(consumption_pattern)
+            sum_consumption_pattern=sum(consumption_pattern),
+            comparer_addition = currency.lower() == "eur"
         ))
     return list(sorted(ret, key=lambda i: (i.comparer, i.dt_start)))
 
