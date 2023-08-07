@@ -8,8 +8,9 @@ class HourModel:
     dt_start: datetime = field(default_factory=lambda: datetime.now().replace(second=0).replace(microsecond=0))
     dt_end: datetime = field(default_factory=lambda: datetime.now().replace(second=0).replace(microsecond=0))
     use_cent: bool = False
-    sum_consumption_pattern: int = 1
+    sum_consumption_pattern: int = -1
     comparer_addition: bool = False
+    is_valid: bool = True
     perkwh: float = field(init=False)
     comparer: float = field(init=False) 
 

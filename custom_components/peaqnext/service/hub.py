@@ -1,6 +1,7 @@
 import logging
 import time
 from typing import Any
+from datetime import datetime
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 from custom_components.peaqnext.service.nordpool.nordpool import NordPoolUpdater
 from homeassistant.core import HomeAssistant, callback
@@ -18,6 +19,8 @@ class Hub:
         if not test:
             self.state_machine: HomeAssistant = hass
         self.sensors: list[NextSensor] = []
+        self._current_minute: int = None
+        self.prices: tuple[list,list] = ([], [])
         self.nordpool = NordPoolUpdater(self, test)
         self.latest_nordpool_update = 0
         self.sensors_dict: dict[str:NextSensor] = {}
@@ -34,6 +37,7 @@ class Hub:
             self.sensors_dict[s.hass_entity_id] = s
 
     async def async_update_prices(self, prices: tuple[list,list]) -> None:
+        self.prices = prices
         for s in self.sensors:
             try:
                 await s.async_update_sensor(prices, self.nordpool.use_cent, self.nordpool.currency)
@@ -55,6 +59,9 @@ class Hub:
     async def async_get_sensor_updates(self, active_sensor: NextSensor) -> dict:
         if active_sensor is None:
             return {}
+        if self._current_minute != datetime.now().minute:
+            self._current_minute = datetime.now().minute
+            await self.async_update_prices(self.prices)
         return {
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,

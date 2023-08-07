@@ -4,10 +4,10 @@ from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
 from custom_components.peaqnext.service.segments import (
-    async_calculate_consumption_per_hour,
+    calculate_consumption_per_hour,
 )
 from custom_components.peaqnext.service.hours import (
-    async_get_hours_sorted,
+    get_hours_sorted,
     cheapest_hour,
 )
 from custom_components.peaqnext.service.models.hour_model import HourModel
@@ -57,7 +57,7 @@ class NextSensor:
         _hour = self._mock_hour if self._mock_hour is not None else datetime.now().hour
         _minute = self._mock_minute if self._mock_minute is not None else datetime.now().minute
         _date = self._mock_date if self._mock_date is not None else datetime.now().date()
-        return datetime.combine(_date, datetime.min.time()).replace(hour=_hour, minute=_minute)
+        return datetime.combine(_date, datetime.min.time()).replace(hour=_hour, minute=_minute, second=0)
         
     def set_hour(self, hour) -> None:
         self._mock_hour = hour
@@ -69,14 +69,17 @@ class NextSensor:
         self._mock_minute = minute
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
+        self._update_sensor(prices, use_cent, currency)
+
+    def _update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
         self.use_cent = use_cent
-        segments: list = await async_calculate_consumption_per_hour(
+        segments: list = calculate_consumption_per_hour(
             self.total_consumption_in_kwh,
             self.total_duration_in_seconds,
             self.consumption_type,
         )
         try:            
-            self._all_sequences = await async_get_hours_sorted(
+            self._all_sequences = get_hours_sorted(
                 prices=prices,
                 consumption_pattern=segments,
                 non_hours_start=self.non_hours_start,

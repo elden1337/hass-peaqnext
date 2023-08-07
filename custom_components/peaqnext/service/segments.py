@@ -14,18 +14,18 @@ CONSUMPTIONCONVERSION = {
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_calculate_consumption_per_hour(
+def calculate_consumption_per_hour(
     consumption: float, duration_in_seconds: int, consumption_type: ConsumptionType
 ) -> list[float]:
     if 4 < duration_in_seconds <= 3600:
         return [consumption]
     try:
-        segments = await async_get_segments(consumption_type, duration_in_seconds)
+        segments = _get_segments(consumption_type, duration_in_seconds)
     except Exception as e:
         _LOGGER.error(f"Unable to get segments for sensor. Exception: {e}")
         return [consumption]
     try:
-        minute_consumption = await async_get_minute_consumption(segments, consumption)
+        minute_consumption = _get_minute_consumption(segments, consumption)
         duration_in_minutes = int(duration_in_seconds / 60)
     except Exception as e:
         _LOGGER.error(f"Unable to get minute consumption for sensor. Exception: {e}")
@@ -43,7 +43,7 @@ async def async_calculate_consumption_per_hour(
     return ret
 
 
-async def async_get_minute_consumption(
+def _get_minute_consumption(
     segments: dict, total_consumption: float
 ) -> list[float]:
     consumption_pattern = {
@@ -56,7 +56,7 @@ async def async_get_minute_consumption(
     return ret
 
 
-async def async_get_segments(
+def _get_segments(
     consumption_type: ConsumptionType, duration_in_seconds: int
 ) -> dict:
     segments = CONSUMPTIONCONVERSION.get(consumption_type)

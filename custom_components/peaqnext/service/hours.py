@@ -4,7 +4,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_get_hours_sorted(
+def get_hours_sorted(
     prices: tuple[list,list],
     consumption_pattern: list[float],
     non_hours_start: list[int],
@@ -15,7 +15,7 @@ async def async_get_hours_sorted(
     currency: str = "sek",
 ) -> list[HourModel]:
     _start = _get_datetime(mock_dt)
-    sequences = await async_list_all_hours(create_prices_dict(prices, mock_dt.hour), consumption_pattern)
+    sequences = list_all_hours(create_prices_dict(prices, mock_dt.hour), consumption_pattern)
     ret = [] 
     for s in sequences:
         _dt_start = _start +timedelta(hours=s - _start.hour)
@@ -53,6 +53,8 @@ def _get_datetime(mock_dt: datetime = None) -> datetime:
 def cheapest_hour(
     hours_list: list[HourModel], cheapest_cap: int|None = None, mock_dt: datetime = None
 ) -> HourModel:
+    if len(hours_list) == 0:
+        return HourModel(idx=0, price=0, is_valid=False)
     _now = _get_datetime(mock_dt)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
     ret = [v for v in hours_list if v.dt_start < hour_limit]
@@ -64,10 +66,10 @@ def cheapest_hour(
         return ret[0]
     except Exception as e:
         _LOGGER.error(f"Unable to get cheapest hour. Exception: {e}. Data: hour_limit:{hour_limit}, available hours:{[h.dt_start.strftime('%d, %H:%M') for h in hours_list]}")
-        return HourModel(0, 0, 0, 0)
+        return HourModel(idx=0, price=0, is_valid=False)
 
 
-async def async_list_all_hours(
+def list_all_hours(
     prices_dict: dict,
     consumption_pattern: list,
 ) -> dict:

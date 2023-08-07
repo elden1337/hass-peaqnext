@@ -263,3 +263,48 @@ async def test_hub_rounding_eur():
     assert any([len(str(c).split('.')[1]) > 1 for c in comparers])
 
 
+@pytest.mark.asyncio
+async def test_hub_this_hour_visible():
+    hub = Hub(None, test=True)
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3720, total_consumption_in_kwh=1.1)
+    s.set_hour(0)
+    s.set_date(date(2023,7,30))
+    await hub.async_setup([s])
+    np1 = MockNordpool(today=_p.P230731, tomorrow=[], average=mean(_p.P230731), currency="EUR", price_in_cent=False, tomorrow_valid=False)
+    await hub.nordpool.async_set_nordpool(np1)    
+    assert len(s.all_sequences) == 23
+    s.set_hour(13)
+    np2 = MockNordpool(today=_p.P230731, tomorrow=_p.P230801, average=mean(_p.P230731), currency="EUR", price_in_cent=False, tomorrow_valid=True)
+    await hub.nordpool.async_set_nordpool(np2)
+    tt = await hub.async_get_sensor_updates(s)
+    #s.set_hour(19)
+    # tt2 = await hub.async_get_sensor_updates(s)
+    # print(f"best: {tt2.get('best_close_start')}")
+    ttt = sorted(tt.get("all_sequences"), key=lambda x: x.dt_start)
+    for t in ttt:
+        print(_make_hours_display(t))
+        #print(t.dt_start)
+    assert 1 > 2
+
+
+def _check_hourmodel(model: HourModel) -> bool:
+    if model is None:
+        return False
+    elif not model.is_valid:
+        print("not valid")
+        return False
+    return True
+
+def _get_tomorrow_assignation(comparer: bool) -> str:
+    return "⁺¹" if comparer else ""
+
+def _add_now_to_date(model: HourModel) -> str:
+    return ">> " if model.dt_start.day == datetime.now().day and model.dt_start.hour == datetime.now().hour else ""
+
+def _make_hours_display(model: HourModel) -> str:
+    if not _check_hourmodel(model):
+        return ""
+    tomorrow1: str = _get_tomorrow_assignation(model.dt_start.day > datetime.now().day)
+    tomorrow2: str = _get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
+    ret = f"{model.dt_start.strftime('%H:%M')}{tomorrow1}-{model.dt_end.strftime('%H:%M')}{tomorrow2}"
+    return f"{_add_now_to_date(model)}{ret}"
