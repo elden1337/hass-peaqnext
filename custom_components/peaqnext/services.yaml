@@ -1,0 +1,16 @@
+override_sensor_data:
+  name: Override Sensor Data
+  description: bla bla bla
+  fields:
+    sensor_entity:
+      description: >
+        Bla bla bla
+      example: 'sensor.peaqnext_washer' or 'peaqnext_washer' or 'washer'
+    cycle_duration_in_minutes:
+      description: >
+        bla bla bla
+      example: 60
+    cycle_energy_in_kwh:
+      description: >
+        bla bla bla
+      example: 0.5
