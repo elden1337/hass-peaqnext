@@ -116,7 +116,7 @@ class NordPoolUpdater:
                     self.state_machine.loop,
                 )
             else:
-                _LOGGER.error(f"more than one Nordpool entity found. Cannot continue.")
+                _LOGGER.error(f"more than one Nordpool entity found. Cannot continue. These are the sensors found: {list(entities)}")
         except Exception as e:
             _LOGGER.error(
                 f"I was unable to get a Nordpool-entity. Cannot continue.: {e}"
