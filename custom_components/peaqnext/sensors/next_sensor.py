@@ -94,7 +94,7 @@ class PeaqNextSensor(SensorEntity):
     def _make_price(self, model: HourModel) -> str:
         if model is None:
             return ""
-        return f"({model.price} {self.hub.nordpool.currency})"
+        return f"({model.price} {self.hub.spotprice.currency})"
 
     def _make_string(self, model: HourModel) -> str:
         if not self._check_hourmodel(model):

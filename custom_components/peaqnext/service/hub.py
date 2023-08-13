@@ -23,7 +23,7 @@ class Hub:
         self.sensors: list[NextSensor] = []
         self._current_minute: int = None
         self.prices: tuple[list,list] = ([], [])
-        self.spotprice: ISpotPrice = SpotPriceFactory.create(hass, test)
+        self.spotprice: ISpotPrice = SpotPriceFactory.create(self, test)
         self.latest_spotprice_update = 0
         self.sensors_dict: dict[str:NextSensor] = {}
         if not test:

@@ -1,9 +1,10 @@
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
 from custom_components.peaqnext.service.spotprice.spotprice_dto import NordpoolDTO
+from custom_components.peaqnext.service.spotprice.const import NORDPOOL
 
 class NordPoolUpdater(ISpotPrice):
-    def __init__(self, hub, NORDPOOL, test:bool = False):
-        super().__init__(hub, NORDPOOL, test)
+    def __init__(self, hub, test:bool = False):
+        super().__init__(hub=hub, source=NORDPOOL, test=test)
 
     async def async_set_dto(self, ret) -> None:
         _result = NordpoolDTO()

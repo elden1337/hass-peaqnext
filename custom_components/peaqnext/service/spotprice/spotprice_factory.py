@@ -12,11 +12,11 @@ class SpotPriceFactory:
     }
 
     @staticmethod
-    def create(hass, test:bool = False) -> ISpotPrice:
+    def create(hub, test:bool = False) -> ISpotPrice:
         if test:
-            raise Exception
-        source = SpotPriceFactory.test_connections(hass)
-        return SpotPriceFactory.sources[source](hass, test)
+            return NordPoolUpdater(hub, test)
+        source = SpotPriceFactory.test_connections(hub.state_machine)
+        return SpotPriceFactory.sources[source](hub, test)
 
     @staticmethod
     def test_connections(hass) -> str:
