@@ -1,0 +1,2 @@
+NORDPOOL = "nordpool"
+ENERGIDATASERVICE = "energidataservice"
