@@ -3,6 +3,10 @@ import homeassistant.helpers.template as template
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
 from custom_components.peaqnext.service.spotprice.nordpool import NordPoolUpdater
 from custom_components.peaqnext.service.spotprice.energidataservice import EnergiDataServiceUpdater
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class SpotPriceFactory:
 
@@ -20,10 +24,13 @@ class SpotPriceFactory:
 
     @staticmethod
     def test_connections(hass) -> str:
-        entities = template.integration_entities(hass, ENERGIDATASERVICE)            
-        if len(list(entities)):
-            ENERGIDATASERVICE
-        return NORDPOOL
+        sensor = hass.states.get(ENERGIDATASERVICE_SENSOR)       
+        if sensor:
+            _LOGGER.debug("Found sensor %s", sensor)
+            return ENERGIDATASERVICE
+        else:
+            _LOGGER.debug("No sensor %s", sensor)
+            return NORDPOOL
                 
 
     

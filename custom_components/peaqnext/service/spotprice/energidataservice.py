@@ -1,6 +1,11 @@
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
 from custom_components.peaqnext.service.spotprice.spotprice_dto import EnergiDataServiceDTO
-from custom_components.peaqnext.service.spotprice.const import ENERGIDATASERVICE
+from custom_components.peaqnext.service.spotprice.const import ENERGIDATASERVICE, ENERGIDATASERVICE_SENSOR
+import asyncio
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class EnergiDataServiceUpdater(ISpotPrice):
     def __init__(self, hub, test:bool = False):
@@ -14,3 +19,22 @@ class EnergiDataServiceUpdater(ISpotPrice):
                 (self.prices, self.prices_tomorrow)
             )
             self._is_initialized = True
+
+    def setup(self):
+        try:
+            sensor = self.state_machine.states.get(ENERGIDATASERVICE_SENSOR)
+            if not sensor.state:
+                raise Exception("no entities found for Spotprice.")
+            else:
+                self._entity = ENERGIDATASERVICE_SENSOR
+                _LOGGER.debug(
+                    f"EnergiDataService has been set up and is ready to be used with {self.entity}"
+                )
+                asyncio.run_coroutine_threadsafe(
+                    self.async_update_spotprice(),
+                    self.state_machine.loop,
+                )
+        except Exception as e:
+            _LOGGER.error(
+                f"I was unable to get a Spotprice-entity. Cannot continue.: {e}"
+            )

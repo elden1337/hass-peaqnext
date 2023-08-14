@@ -54,7 +54,7 @@ class PeaqNextSensor(SensorEntity):
         self._non_hours_start = status.get("non_hours_start", [])
         self._non_hours_end = status.get("non_hours_end", [])
         self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
-        self._price_source = status.get("price_source", "unknown")
+        self._price_source = status.get("price_source", "unknown").capitalize()
 
     @property
     def extra_state_attributes(self) -> dict:

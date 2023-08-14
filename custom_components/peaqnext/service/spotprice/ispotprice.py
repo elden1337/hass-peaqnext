@@ -1,6 +1,4 @@
 import logging
-import homeassistant.helpers.template as template
-import asyncio
 from custom_components.peaqnext.service.spotprice.spotprice_dto import ISpotPriceDTO
 from custom_components.peaqnext.service.spotprice.const import *
 from abc import abstractmethod
@@ -78,27 +76,9 @@ class ISpotPrice:
     async def async_set_dto(self, ret) -> None:
         pass
 
+    @abstractmethod
     def setup(self):
-        try:
-            entities = template.integration_entities(self.state_machine, self._source)
-            _LOGGER.debug(f"Found {list(entities)} Spotprice entities.")
-            if len(list(entities)) < 1:
-                raise Exception("no entities found for Spotprice.")
-            if len(list(entities)) == 1:
-                self._entity = entities[0]
-                _LOGGER.debug(
-                    f"Nordpool has been set up and is ready to be used with {self.entity}"
-                )
-                asyncio.run_coroutine_threadsafe(
-                    self.async_update_spotprice(),
-                    self.state_machine.loop,
-                )
-            else:
-                _LOGGER.error(f"more than one Spotprice entity found. Cannot continue.")
-        except Exception as e:
-            _LOGGER.error(
-                f"I was unable to get a Spotprice-entity. Cannot continue.: {e}"
-            )
+        pass
 
     async def async_update_spotprice(self) -> None:
         if self.entity is not None:
