@@ -43,7 +43,7 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 custom_consumption_pattern=s.get(CONF_CUSTOM_CONSUMPTION_PATTERN, None),
                 name=s[CONF_NAME],
                 hass_entity_id=nametoid(s[CONF_NAME]),
-                total_duration_in_seconds=s[CONF_TOTAL_DURATION_IN_MINUTES] * 60,
+                total_duration_in_minutes=s[CONF_TOTAL_DURATION_IN_MINUTES],
                 total_consumption_in_kwh=s[CONF_TOTAL_CONSUMPTION_IN_KWH],
                 non_hours_start=s.get(CONF_NONHOURS_START, []),
                 non_hours_end=s.get(CONF_NONHOURS_END, []),
