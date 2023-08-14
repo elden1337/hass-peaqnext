@@ -66,6 +66,10 @@ class ISpotPrice:
     def use_cent(self) -> bool:
         return self._use_cent
 
+    @property
+    def source(self) -> str:
+        return self._source
+
     @abstractmethod
     async def async_update_spotprice(self) -> None:
         pass
