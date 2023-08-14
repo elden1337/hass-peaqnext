@@ -6,6 +6,7 @@
                     "add_another_sensor": "Add another sensor?",
                     "name": "Name of the sensor.",
                     "consumption_type": "Pick consumption pattern",
+                    "custom_consumption_pattern": "(optional), add custom pattern as , separated list of values. e.g. 0.1,0.2 etc.",
                     "total_duration_in_minutes": "Cycle duration in minutes",
                     "total_consumption_in_kwh": "Expected consumption in kWh",
                     "non_hours_start": "Can't start in these hours",

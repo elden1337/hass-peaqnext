@@ -18,11 +18,12 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class NextSensor:
-    consumption_type: ConsumptionType
+    consumption_type: ConsumptionType    
     name: str
     hass_entity_id: str
     total_duration_in_seconds: int
     total_consumption_in_kwh: float
+    custom_consumption_pattern: str|None = None
     default_closest_cheap: int = 12
     use_cent: bool = False
     non_hours_start: list[int] = field(default_factory=lambda: [])
@@ -31,6 +32,20 @@ class NextSensor:
     _mock_hour: int|None = None
     _mock_date: date|None = None
     _mock_minute: int|None = None
+    custom_consumption_pattern_list: list[int|float] = field(init=False)
+
+    def __post_init__(self):
+        self.custom_consumption_pattern_list = self._validate_custom_pattern(self.custom_consumption_pattern)
+
+    def _validate_custom_pattern(self, custom_consumption_pattern: str) -> list[int|float]:
+        if not custom_consumption_pattern:
+            raise Exception("No custom consumption pattern provided")
+        pattern = custom_consumption_pattern.split(",")
+        try:
+            pattern = [float(x) for x in pattern]
+        except Exception as e:
+            raise Exception("Invalid custom consumption pattern provided")
+        return pattern
 
     @property
     def best_start(self) -> HourModel:
@@ -77,6 +92,7 @@ class NextSensor:
             self.total_consumption_in_kwh,
             self.total_duration_in_seconds,
             self.consumption_type,
+            self.custom_consumption_pattern_list
         )
         try:            
             self._all_sequences = get_hours_sorted(

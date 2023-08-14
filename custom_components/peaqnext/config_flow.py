@@ -21,7 +21,8 @@ from .const import (
     CONF_TOTAL_DURATION_IN_MINUTES,
     CONF_NONHOURS_START,
     CONF_NONHOURS_END,
-    CONF_CLOSEST_CHEAP
+    CONF_CLOSEST_CHEAP,
+    CONF_CUSTOM_CONSUMPTION_PATTERN
 )  # pylint:disable=unused-import
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ SENSORS_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
         vol.Required(CONF_CONSUMPTION_TYPE): vol.In(CONSUMPTIONTYPE_NAMES),
+        vol.Optional(CONF_CUSTOM_CONSUMPTION_PATTERN): cv.string,
         vol.Required(CONF_TOTAL_CONSUMPTION_IN_KWH): cv.positive_float,
         vol.Required(CONF_TOTAL_DURATION_IN_MINUTES): cv.positive_float,
         vol.Optional(CONF_NONHOURS_START): cv.multi_select(list(range(0, 24))),
@@ -63,6 +65,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.data[CONF_SENSORS].append(
                 {
                     CONF_CONSUMPTION_TYPE: user_input[CONF_CONSUMPTION_TYPE],
+                    CONF_CUSTOM_CONSUMPTION_PATTERN: user_input.get(CONF_CUSTOM_CONSUMPTION_PATTERN, None),
                     CONF_NAME: user_input.get(CONF_NAME),
                     CONF_TOTAL_DURATION_IN_MINUTES: user_input.get(
                         CONF_TOTAL_DURATION_IN_MINUTES

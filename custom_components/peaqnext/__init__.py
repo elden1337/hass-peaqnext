@@ -10,7 +10,7 @@ from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 
-from .const import (DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
+from .const import (CONF_CUSTOM_CONSUMPTION_PATTERN, DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +40,7 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
         sensors.append(
             NextSensor(
                 consumption_type=ConsumptionType(s[CONF_CONSUMPTION_TYPE]),
+                custom_consumption_pattern=s.get(CONF_CUSTOM_CONSUMPTION_PATTERN, None),
                 name=s[CONF_NAME],
                 hass_entity_id=nametoid(s[CONF_NAME]),
                 total_duration_in_seconds=s[CONF_TOTAL_DURATION_IN_MINUTES] * 60,

@@ -72,6 +72,7 @@ class Hub:
             "non_hours_start": active_sensor.non_hours_start,
             "non_hours_end": active_sensor.non_hours_end,
             "closest_cheap_hour": active_sensor.default_closest_cheap,
+            "custom_consumption_pattern": active_sensor.custom_consumption_pattern_list,
         }
 
     @callback

@@ -286,6 +286,18 @@ async def test_hub_this_hour_visible():
         #print(t.dt_start)
     assert 1 > 2
 
+@pytest.mark.asyncio
+async def test_custom_consumption_valid():    
+    s = NextSensor(consumption_type=ConsumptionType.Custom, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10, custom_consumption_pattern="0.5,0.5") 
+    s.set_hour(4)   
+    await s.async_update_sensor((_p.P230729BE,[]))   
+    assert s.custom_consumption_pattern_list == [0.5,0.5]
+
+@pytest.mark.asyncio
+async def test_custom_consumption_invalid():    
+    with pytest.raises(Exception):   
+        s = NextSensor(consumption_type=ConsumptionType.Custom, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=7200, total_consumption_in_kwh=10, custom_consumption_pattern="0.f5,0.5") 
+
 
 def _check_hourmodel(model: HourModel) -> bool:
     if model is None:

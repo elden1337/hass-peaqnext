@@ -1,6 +1,8 @@
 """sensor implementation goes here"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from ..const import DOMAIN, HUB
 from datetime import datetime, timedelta
 
@@ -33,6 +35,7 @@ class PeaqNextSensor(SensorEntity):
         self._non_hours_start = []
         self._non_hours_end = []
         self._closest_cheap_hour = None
+        self._custom_consumption_pattern = []
 
     @property
     def state(self) -> float:
@@ -53,6 +56,7 @@ class PeaqNextSensor(SensorEntity):
         self._non_hours_start = status.get("non_hours_start", [])
         self._non_hours_end = status.get("non_hours_end", [])
         self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
+        self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -67,6 +71,8 @@ class PeaqNextSensor(SensorEntity):
             attr_dict["Non hours start"] = self._non_hours_start
         if len(self._non_hours_end) > 0:
             attr_dict["Non hours end"] = self._non_hours_end
+        if self._consumption_type == ConsumptionType.Custom.value:
+            attr_dict["Custom consumption pattern"] = self._custom_consumption_pattern
         attr_dict["raw_start"]= self._raw_start
         return attr_dict
 

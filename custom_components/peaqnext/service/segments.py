@@ -9,18 +9,19 @@ CONSUMPTIONCONVERSION = {
     ConsumptionType.PeakOut: [1, 1, 1, 2],
     ConsumptionType.MidPeak: [1, 1, 2, 1, 1],
     ConsumptionType.PeakInOut: [2, 1, 1, 2],
+    ConsumptionType.Custom: []
 }
 
 _LOGGER = logging.getLogger(__name__)
 
 
 def calculate_consumption_per_hour(
-    consumption: float, duration_in_seconds: int, consumption_type: ConsumptionType
+    consumption: float, duration_in_seconds: int, consumption_type: ConsumptionType, custom_consumption_pattern: list
 ) -> list[float]:
     if 4 < duration_in_seconds <= 3600:
         return [consumption]
     try:
-        segments = _get_segments(consumption_type, duration_in_seconds)
+        segments = _get_segments(consumption_type, duration_in_seconds, custom_consumption_pattern)
     except Exception as e:
         _LOGGER.error(f"Unable to get segments for sensor. Exception: {e}")
         return [consumption]
@@ -57,9 +58,12 @@ def _get_minute_consumption(
 
 
 def _get_segments(
-    consumption_type: ConsumptionType, duration_in_seconds: int
+    consumption_type: ConsumptionType, duration_in_seconds: int, custom_consumption_pattern: list
 ) -> dict:
-    segments = CONSUMPTIONCONVERSION.get(consumption_type)
+    if consumption_type == ConsumptionType.Custom:
+        segments = custom_consumption_pattern
+    else:
+        segments = CONSUMPTIONCONVERSION.get(consumption_type)
     segment = 1
     ret = {}
     segment_duration = int(duration_in_seconds / len(segments) / 60) * 60
@@ -73,3 +77,5 @@ def _get_segments(
         r1 = ret[1][1] + missing
         ret[1] = (r0, r1)
     return ret
+
+
