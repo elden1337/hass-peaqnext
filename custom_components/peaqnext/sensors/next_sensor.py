@@ -30,6 +30,7 @@ class PeaqNextSensor(SensorEntity):
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
         self._raw_start = None
+        self._price_source: str|None = None
         self._non_hours_start = []
         self._non_hours_end = []
         self._closest_cheap_hour = None
@@ -53,6 +54,7 @@ class PeaqNextSensor(SensorEntity):
         self._non_hours_start = status.get("non_hours_start", [])
         self._non_hours_end = status.get("non_hours_end", [])
         self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
+        self._price_source = status.get("price_source", "unknown").capitalize()
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -68,6 +70,7 @@ class PeaqNextSensor(SensorEntity):
         if len(self._non_hours_end) > 0:
             attr_dict["Non hours end"] = self._non_hours_end
         attr_dict["raw_start"]= self._raw_start
+        attr_dict["price_source"] = self._price_source
         return attr_dict
 
     @property
@@ -94,7 +97,7 @@ class PeaqNextSensor(SensorEntity):
     def _make_price(self, model: HourModel) -> str:
         if model is None:
             return ""
-        return f"({model.price} {self.hub.nordpool.currency})"
+        return f"({model.price} {self.hub.spotprice.currency})"
 
     def _make_string(self, model: HourModel) -> str:
         if not self._check_hourmodel(model):
