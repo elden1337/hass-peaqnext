@@ -49,7 +49,8 @@ async def test_override_duration_reset():
     assert s.total_duration_in_seconds == 7200
     await s.async_override_sensor_data(total_duration_in_minutes=20)
     assert s.total_duration_in_seconds == 1200
-    s.override_model.override = False
+    # s.override_model.override = False
+    await s.async_cancel_override()
     assert s.total_duration_in_seconds == 7200
 
 @pytest.mark.asyncio

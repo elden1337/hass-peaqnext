@@ -149,7 +149,7 @@ class NextSensor(NextSensorData, object):
             self._update_sensor_internal()
 
     async def async_cancel_override(self) -> None:
-        self.override = NextSensorOverride()
+        self.override_model = NextSensorOverride()
         self._update_sensor_internal()
 
 
