@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
-class NextSensor(NextSensorData, object):
+class NextSensor(NextSensorData):
     consumption_type: ConsumptionType = ConsumptionType.Flat  
     name: str = "Next Sensor"
     hass_entity_id: str = "sensor.next_sensor"
@@ -34,6 +34,14 @@ class NextSensor(NextSensorData, object):
 
     def __post_init__(self):
         self.custom_consumption_pattern_list = self._validate_custom_pattern(self.custom_consumption_pattern)
+        self.override_model = NextSensorOverride(
+            total_consumption_in_kwh=self.total_consumption_in_kwh, 
+            total_duration_in_minutes=self.total_duration_in_minutes, 
+            custom_consumption_pattern_list=self.custom_consumption_pattern_list, 
+            non_hours_start=self.non_hours_start, 
+            non_hours_end=self.non_hours_end,
+            dt_model=self.dt_model
+            )
 
     def __getattribute__(self, attr):
         """Custom override for getattr that resolves either the overriden data or the regular."""
@@ -42,11 +50,11 @@ class NextSensor(NextSensorData, object):
         if self_override != getattr(override_model, 'override'):
             self.override = getattr(override_model, 'override')
             return self.__getattribute__(attr)
-        if self_override and hasattr(override_model, attr):
+        if self_override and hasattr(override_model, attr) and attr in NextSensorData.__dict__:
             return getattr(override_model, attr)
         return super().__getattribute__(attr)
   
-    def _validate_custom_pattern(self, custom_consumption_pattern: str) -> list[int|float]:
+    def _validate_custom_pattern(self, custom_consumption_pattern: str|None) -> list[int|float]:
         if not custom_consumption_pattern:
             return []
         pattern = custom_consumption_pattern.split(",")
@@ -101,6 +109,7 @@ class NextSensor(NextSensorData, object):
             self.consumption_type,
             self.custom_consumption_pattern_list
         )
+        print(segments, self.custom_consumption_pattern_list, self.consumption_type, self.total_consumption_in_kwh, self.total_duration_in_seconds)
         try:            
             self._all_sequences = get_hours_sorted(
                 prices=self.price_model.prices,

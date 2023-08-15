@@ -15,7 +15,8 @@ def get_hours_sorted(
     currency: str = "sek",
 ) -> list[HourModel]:
     _start = _get_datetime(mock_dt)
-    sequences = list_all_hours(create_prices_dict(prices, mock_dt.hour), consumption_pattern)
+    prices_dict = create_prices_dict(prices, mock_dt.hour)
+    sequences = list_all_hours(prices_dict, consumption_pattern)
     ret = [] 
     for s in sequences:
         _dt_start = _start +timedelta(hours=s - _start.hour)
@@ -83,6 +84,6 @@ def list_all_hours(
                 internal_sum += prices_dict[p + i] * consumption_pattern[i]
             sequences[p] = round(internal_sum, 2)    
         except: 
-            print("error")
+            print("error in list_all_hours")
             continue
     return sequences

@@ -59,6 +59,9 @@ async def test_override_timeout_int():
     s.set_hour(4)   
     await s.async_update_sensor((_p.P230729BE,[]))   
     assert s.total_duration_in_seconds == 7200
-    _now = datetime.now()
-    await s.async_override_sensor_data(timeout=10)
-    assert s.override_model.parsed_timeout == _now + timedelta(hours=10)
+    await s.async_override_sensor_data(timeout=4, total_duration_in_minutes=20)
+    assert s.override is True
+    assert s.total_duration_in_seconds == 1200
+    s.set_hour(11)
+    assert s.override is False
+    #assert s.override_model.parsed_timeout == _now + timedelta(hours=10)
