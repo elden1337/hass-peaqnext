@@ -3,12 +3,14 @@ import time
 from typing import Any
 from datetime import datetime
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
-from custom_components.peaqnext.service.nordpool.nordpool import NordPoolUpdater
+from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
+from custom_components.peaqnext.service.spotprice.spotprice_factory import SpotPriceFactory
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change
 
 _LOGGER = logging.getLogger(__name__)
-NORDPOOL_UPDATE_FORCE = 60
+SPOTPRICE_UPDATE_FORCE = 60
+
 
 
 class Hub:
@@ -21,13 +23,13 @@ class Hub:
         self.sensors: list[NextSensor] = []
         self._current_minute: int = None
         self.prices: tuple[list,list] = ([], [])
-        self.nordpool = NordPoolUpdater(self, test)
-        self.latest_nordpool_update = 0
+        self.spotprice: ISpotPrice = SpotPriceFactory.create(self, test)
+        self.latest_spotprice_update = 0
         self.sensors_dict: dict[str:NextSensor] = {}
         if not test:
             async_track_state_change(
                 self.state_machine,
-                [self.nordpool.nordpool_entity],
+                [self.spotprice.entity],
                 self.async_state_changed,
             )
 
@@ -40,18 +42,18 @@ class Hub:
         self.prices = prices
         for s in self.sensors:
             try:
-                await s.async_update_sensor(prices, self.nordpool.use_cent, self.nordpool.currency)
+                await s.async_update_sensor(prices, self.spotprice.use_cent, self.spotprice.currency)
             except Exception as e:
                 _LOGGER.error(
                     f"Unable to update sensor: {s.hass_entity_id}. Exception: {e}"
                 )
 
     async def async_get_updates(self, sensor_id: str) -> dict:
-        if time.time() - self.latest_nordpool_update > NORDPOOL_UPDATE_FORCE:
-            await self.nordpool.async_update_nordpool()
-            self.latest_nordpool_update = time.time()
+        if time.time() - self.latest_spotprice_update > SPOTPRICE_UPDATE_FORCE:
+            await self.spotprice.async_update_spotprice()
+            self.latest_spotprice_update = time.time()
             await self.async_update_prices(
-                (self.nordpool.prices, self.nordpool.prices_tomorrow)
+                (self.spotprice.prices, self.spotprice.prices_tomorrow)
             )
         active_sensor: NextSensor = self.sensors_dict.get(sensor_id, None)
         return await self.async_get_sensor_updates(active_sensor)
@@ -73,6 +75,7 @@ class Hub:
             "non_hours_end": active_sensor.non_hours_end,
             "closest_cheap_hour": active_sensor.default_closest_cheap,
             "custom_consumption_pattern": active_sensor.custom_consumption_pattern_list,
+            "price_source": self.spotprice.source,
         }
 
     @callback
@@ -80,7 +83,7 @@ class Hub:
         if entity_id is not None:
             try:
                 if old_state is None or old_state != new_state:
-                    await self.nordpool.async_update_nordpool()
+                    await self.spotprice.async_update_spotprice()
             except Exception as e:
                 msg = f"Unable to handle data-update: {entity_id} {old_state}|{new_state}. Exception: {e}"
                 _LOGGER.error(msg)
