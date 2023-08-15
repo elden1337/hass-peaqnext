@@ -27,17 +27,39 @@ class NordPoolUpdater(ISpotPrice):
             if len(list(entities)) < 1:
                 raise Exception("no entities found for Spotprice.")
             if len(list(entities)) == 1:
-                self._entity = entities[0]
-                _LOGGER.debug(
-                    f"Nordpool has been set up and is ready to be used with {self.entity}"
-                )
-                asyncio.run_coroutine_threadsafe(
-                    self.async_update_spotprice(),
-                    self.state_machine.loop,
-                )
+                self._setup_set_entity(entities[0])
             else:
-                _LOGGER.error(f"more than one Spotprice entity found. Cannot continue.")
+                _found: bool = False
+                for e in list(entities):
+                    if self._test_sensor(e):
+                        _found = True
+                        self._setup_set_entity(e)
+                        break
+                if not _found:
+                    _LOGGER.error(f"more than one Spotprice entity found. Cannot continue.")
         except Exception as e:
             _LOGGER.error(
                 f"I was unable to get a Spotprice-entity. Cannot continue.: {e}"
             )
+
+    def _setup_set_entity(self, entity: str) -> None:
+        self._entity = entity
+        _LOGGER.debug(
+            f"Nordpool has been set up and is ready to be used with {self.entity}"
+        )
+        asyncio.run_coroutine_threadsafe(
+            self.async_update_spotprice(),
+            self.state_machine.loop,
+        )
+
+    def _test_sensor(self, sensor: str) -> bool:
+        """
+        Testing whether the sensor has a set value for additional_costs_current_hour.
+        This is the only way we can differ when there are multiple sensors present.
+        """
+        state = self.state_machine.states.get(sensor)
+        if state:
+            attr = state.attributes.get("additional_costs_current_hour", 0)
+            if attr != 0:
+                return True
+        return False
