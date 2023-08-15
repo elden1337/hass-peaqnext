@@ -41,3 +41,23 @@ async def test_override_duration():
     assert s.total_duration_in_seconds == 1200
 
 
+@pytest.mark.asyncio
+async def test_override_duration_reset():    
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
+    s.set_hour(4)   
+    await s.async_update_sensor((_p.P230729BE,[]))   
+    assert s.total_duration_in_seconds == 7200
+    await s.async_override_sensor_data(total_duration_in_minutes=20)
+    assert s.total_duration_in_seconds == 1200
+    s.override_model.override = False
+    assert s.total_duration_in_seconds == 7200
+
+@pytest.mark.asyncio
+async def test_override_timeout_int():    
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
+    s.set_hour(4)   
+    await s.async_update_sensor((_p.P230729BE,[]))   
+    assert s.total_duration_in_seconds == 7200
+    _now = datetime.now()
+    await s.async_override_sensor_data(timeout=10)
+    assert s.override_model.parsed_timeout == _now + timedelta(hours=10)
