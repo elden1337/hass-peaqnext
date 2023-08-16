@@ -141,8 +141,8 @@ async def test_start_and_end_nonhours():
 
 @pytest.mark.asyncio
 async def test_price_deduction():
-    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_seconds=3600, total_consumption_in_kwh=1, deduct_price=0.5)
-    s.set_hour(2)   
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=60, total_consumption_in_kwh=1, deduct_price=0.5)
+    s.dt_model.set_hour(2)   
     await s.async_update_sensor((_p.PFLAT,[]), use_cent=False)        
     assert s.best_close_start.price == 0.5
 

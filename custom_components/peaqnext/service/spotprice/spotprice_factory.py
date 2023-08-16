@@ -26,10 +26,10 @@ class SpotPriceFactory:
     def test_connections(hass) -> str:
         sensor = hass.states.get(ENERGIDATASERVICE_SENSOR)       
         if sensor:
-            _LOGGER.debug("Found sensor %s", sensor)
+            _LOGGER.debug("Found sensor %s, initializing EnergiDataService", sensor)
             return ENERGIDATASERVICE
         else:
-            _LOGGER.debug("No sensor %s", sensor)
+            _LOGGER.debug("Initializing Nordpool", sensor)
             return NORDPOOL
                 
 
