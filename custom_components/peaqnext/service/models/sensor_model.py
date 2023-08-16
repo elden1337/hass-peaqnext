@@ -24,6 +24,7 @@ class NextSensor:
     total_duration_in_seconds: int
     total_consumption_in_kwh: float
     default_closest_cheap: int = 12
+    deduct_price: float = 0
     use_cent: bool = False
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
@@ -80,7 +81,7 @@ class NextSensor:
         )
         try:            
             self._all_sequences = get_hours_sorted(
-                prices=prices,
+                prices=tuple([p - self.deduct_price for p in price_list] for price_list in prices),
                 consumption_pattern=segments,
                 non_hours_start=self.non_hours_start,
                 non_hours_end=self.non_hours_end,
