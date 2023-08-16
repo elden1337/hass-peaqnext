@@ -13,6 +13,7 @@ from custom_components.peaqnext.service.models.consumption_type import (
 )
 
 from .const import (
+    CONF_DEDUCT_PRICE,
     DOMAIN,
     CONF_NAME,
     CONF_SENSORS,
@@ -38,6 +39,7 @@ SENSORS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NONHOURS_START): cv.multi_select(list(range(0, 24))),
         vol.Optional(CONF_NONHOURS_END): cv.multi_select(list(range(0, 24))),
         vol.Optional(CONF_CLOSEST_CHEAP, default=12): cv.positive_float,
+        vol.Optional(CONF_DEDUCT_PRICE, default=0): cv.positive_float,
         vol.Optional("add_another_sensor"): cv.boolean,
     }
 )
@@ -67,15 +69,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CONSUMPTION_TYPE: user_input[CONF_CONSUMPTION_TYPE],
                     CONF_CUSTOM_CONSUMPTION_PATTERN: user_input.get(CONF_CUSTOM_CONSUMPTION_PATTERN, None),
                     CONF_NAME: user_input.get(CONF_NAME),
-                    CONF_TOTAL_DURATION_IN_MINUTES: user_input.get(
-                        CONF_TOTAL_DURATION_IN_MINUTES
-                    ),
-                    CONF_TOTAL_CONSUMPTION_IN_KWH: user_input.get(
-                        CONF_TOTAL_CONSUMPTION_IN_KWH
-                    ),
+                    CONF_TOTAL_DURATION_IN_MINUTES: user_input.get(CONF_TOTAL_DURATION_IN_MINUTES),
+                    CONF_TOTAL_CONSUMPTION_IN_KWH: user_input.get(CONF_TOTAL_CONSUMPTION_IN_KWH),
                     CONF_NONHOURS_START: user_input.get(CONF_NONHOURS_START,[]),
                     CONF_NONHOURS_END: user_input.get(CONF_NONHOURS_END,[]),
-                    CONF_CLOSEST_CHEAP: user_input.get(CONF_CLOSEST_CHEAP, 12)
+                    CONF_CLOSEST_CHEAP: user_input.get(CONF_CLOSEST_CHEAP, 12),
+                    CONF_DEDUCT_PRICE: user_input.get(CONF_DEDUCT_PRICE, 0)
                 }
             )
             if user_input.get("add_another_sensor", False):

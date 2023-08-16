@@ -9,8 +9,8 @@ from custom_components.peaqnext.util import nametoid
 from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
+from .const import (CONF_CUSTOM_CONSUMPTION_PATTERN, CONF_DEDUCT_PRICE, DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
 
-from .const import (CONF_CUSTOM_CONSUMPTION_PATTERN, DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,7 +47,8 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 total_consumption_in_kwh=s[CONF_TOTAL_CONSUMPTION_IN_KWH],
                 non_hours_start=s.get(CONF_NONHOURS_START, []),
                 non_hours_end=s.get(CONF_NONHOURS_END, []),
-                default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12)
+                default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12),
+                deduct_price=s.get(CONF_DEDUCT_PRICE, 0)
             )
         )
     return sensors

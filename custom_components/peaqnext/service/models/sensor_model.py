@@ -26,6 +26,10 @@ class NextSensor(NextSensorData):
     hass_entity_id: str = "sensor.next_sensor"
     custom_consumption_pattern: str|None = field(repr=False, hash=False, compare=False, default=None)
     default_closest_cheap: int = 12
+    deduct_price: float = 0
+    use_cent: bool = False
+    non_hours_start: list[int] = field(default_factory=lambda: [])
+    non_hours_end: list[int] = field(default_factory=lambda: [])
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
     dt_model: DTModel = field(default_factory=lambda: DTModel())
     price_model: SensorPrices = field(default_factory=lambda: SensorPrices())
@@ -102,7 +106,7 @@ class NextSensor(NextSensorData):
         )
         try:            
             self._all_sequences = get_hours_sorted(
-                prices=self.price_model.prices,
+                prices=tuple([p - self.deduct_price for p in price_list] for price_list in self.price_model.prices),
                 consumption_pattern=segments,
                 non_hours_start=self.non_hours_start,
                 non_hours_end=self.non_hours_end,

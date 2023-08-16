@@ -11,3 +11,5 @@ CONF_NONHOURS_START = "non_hours_start"
 CONF_NONHOURS_END = "non_hours_end"
 CONF_CLOSEST_CHEAP = "closest_cheap_hour"
 CONF_CUSTOM_CONSUMPTION_PATTERN = "custom_consumption_pattern"
+CONF_DEDUCT_PRICE = "deduct_price"
+
