@@ -13,3 +13,12 @@ class DTModel:
         _minute = self.mock_minute if self.mock_minute is not None else datetime.now().minute
         _date = self.mock_date if self.mock_date is not None else datetime.now().date()
         return datetime.combine(_date, datetime.min.time()).replace(hour=_hour, minute=_minute, second=0)
+
+    def set_hour(self, hour) -> None:
+        self.mock_hour = hour
+
+    def set_date(self, date) -> None:
+        self.mock_date = date
+
+    def set_minute(self, minute) -> None:
+        self.mock_minute = minute

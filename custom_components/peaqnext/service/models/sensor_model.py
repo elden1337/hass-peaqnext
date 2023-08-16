@@ -84,15 +84,6 @@ class NextSensor(NextSensorData):
     def all_sequences(self) -> list[HourModel]:
         return [h for h in self._all_sequences if h.dt_start >= self.dt_model.get_dt_now()]
 
-    def set_hour(self, hour) -> None:
-        self.dt_model.mock_hour = hour
-
-    def set_date(self, date) -> None:
-        self.dt_model.mock_date = date
-
-    def set_minute(self, minute) -> None:
-        self.dt_model.mock_minute = minute
-
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
         self._update_sensor(prices, use_cent, currency)
 
@@ -109,7 +100,6 @@ class NextSensor(NextSensorData):
             self.consumption_type,
             self.custom_consumption_pattern_list
         )
-        print(segments, self.custom_consumption_pattern_list, self.consumption_type, self.total_consumption_in_kwh, self.total_duration_in_seconds)
         try:            
             self._all_sequences = get_hours_sorted(
                 prices=self.price_model.prices,
@@ -158,7 +148,14 @@ class NextSensor(NextSensorData):
             self._update_sensor_internal()
 
     async def async_cancel_override(self) -> None:
-        self.override_model = NextSensorOverride()
+        self.override_model = NextSensorOverride(
+            total_consumption_in_kwh=self.total_consumption_in_kwh, 
+            total_duration_in_minutes=self.total_duration_in_minutes, 
+            custom_consumption_pattern_list=self.custom_consumption_pattern_list, 
+            non_hours_start=self.non_hours_start, 
+            non_hours_end=self.non_hours_end,
+            dt_model=self.dt_model
+            )
         self._update_sensor_internal()
 
 

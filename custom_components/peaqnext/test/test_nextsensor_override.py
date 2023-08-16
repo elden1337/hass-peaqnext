@@ -25,7 +25,7 @@ class MockNordpool:
 @pytest.mark.asyncio
 async def test_override_consumption():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
-    s.set_hour(4)   
+    s.dt_model.set_hour(4)   
     await s.async_update_sensor((_p.P230729BE,[]))   
     assert s.total_consumption_in_kwh == 10
     await s.async_override_sensor_data(total_consumption_in_kwh=20)
@@ -34,7 +34,7 @@ async def test_override_consumption():
 @pytest.mark.asyncio
 async def test_override_duration():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
-    s.set_hour(4)   
+    s.dt_model.set_hour(4)   
     await s.async_update_sensor((_p.P230729BE,[]))   
     assert s.total_duration_in_seconds == 7200
     await s.async_override_sensor_data(total_duration_in_minutes=20)
@@ -44,7 +44,7 @@ async def test_override_duration():
 @pytest.mark.asyncio
 async def test_override_duration_reset():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
-    s.set_hour(4)   
+    s.dt_model.set_hour(4)   
     await s.async_update_sensor((_p.P230729BE,[]))   
     assert s.total_duration_in_seconds == 7200
     await s.async_override_sensor_data(total_duration_in_minutes=20)
@@ -56,12 +56,12 @@ async def test_override_duration_reset():
 @pytest.mark.asyncio
 async def test_override_timeout_int():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
-    s.set_hour(4)   
+    s.dt_model.set_hour(4)   
     await s.async_update_sensor((_p.P230729BE,[]))   
     assert s.total_duration_in_seconds == 7200
     await s.async_override_sensor_data(timeout=4, total_duration_in_minutes=20)
     assert s.override is True
     assert s.total_duration_in_seconds == 1200
-    s.set_hour(11)
+    s.dt_model.set_hour(11)
     assert s.override is False
     #assert s.override_model.parsed_timeout == _now + timedelta(hours=10)
