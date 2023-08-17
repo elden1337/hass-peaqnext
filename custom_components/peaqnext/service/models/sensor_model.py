@@ -95,7 +95,7 @@ class NextSensor(NextSensorData):
 
     @property
     def all_sequences(self) -> list[HourModel]:
-        return [h for h in self._all_sequences if h.dt_start >= self.dt_model.get_dt_now()]
+        return [h for h in self._all_sequences if h.dt_start >= self.dt_model.get_dt_now() and (self.get_end_cap() is None or h.dt_end < self.get_end_cap())]
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
         self._update_sensor(prices, use_cent, currency)
