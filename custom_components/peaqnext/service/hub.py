@@ -16,16 +16,18 @@ SPOTPRICE_UPDATE_FORCE = 60
 class Hub:
     hub_id = 33512
     hubname = "PeaqNext"
+    sensors_dict: dict[str:NextSensor] = {}
+    sensors: list[NextSensor] = []
 
     def __init__(self, hass, test:bool = False) -> Any:
         if not test:
             self.state_machine: HomeAssistant = hass
-        self.sensors: list[NextSensor] = []
+        #self.sensors: list[NextSensor] = []
         self._current_minute: int = None
         self.prices: tuple[list,list] = ([], [])
         self.spotprice: ISpotPrice = SpotPriceFactory.create(self, test)
         self.latest_spotprice_update = 0
-        self.sensors_dict: dict[str:NextSensor] = {}
+        #self.sensors_dict: dict[str:NextSensor] = {}
         if not test:
             async_track_state_change(
                 self.state_machine,
@@ -57,7 +59,7 @@ class Hub:
             )
         active_sensor: NextSensor = self.sensors_dict.get(sensor_id, None)
         return await self.async_get_sensor_updates(active_sensor)
-    
+
     async def async_get_sensor_updates(self, active_sensor: NextSensor) -> dict:
         if active_sensor is None:
             return {}

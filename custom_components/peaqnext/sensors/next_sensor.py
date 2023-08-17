@@ -49,7 +49,9 @@ class PeaqNextSensor(SensorEntity):
     async def async_update(self) -> None:
         status = None
         try:
+            _LOGGER.debug(f"updating status for {self._attr_name}")
             status = await self.hub.async_get_updates(nametoid(self.given_name))
+            _LOGGER.debug(f"status for {self._attr_name}: {status}")
             self._raw_start = self._set_raw_start(status["best_close_start"].dt_start)
             self._all_seqeuences = self._make_dict(status.get("all_sequences", []))
             self._state = self._make_string(status["best_close_start"])
@@ -62,7 +64,8 @@ class PeaqNextSensor(SensorEntity):
             self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
             self._price_source = status.get("price_source", "unknown").capitalize()
         except:
-            _LOGGER.debug(f"status for {self._attr_name}: {status}")
+            #_LOGGER.debug(f"status for {self._attr_name}: {status}")
+            pass
 
     @property
     def extra_state_attributes(self) -> dict:

@@ -4,7 +4,8 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry  # pylint: disable=import-error
-from homeassistant.core import HomeAssistant  # pylint: disable=import-error
+from homeassistant.core import HomeAssistant
+from custom_components.peaqnext.services import async_prepare_register_services  # pylint: disable=import-error
 from custom_components.peaqnext.util import nametoid
 from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
@@ -24,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
     await hub.async_setup(internal_sensors)
 
     # conf.async_on_unload(conf.add_update_listener(async_update_entry))
-    # await async_prepare_register_services(hub, hass)
+    await async_prepare_register_services(hub, hass)
 
     for platform in PLATFORMS:
         hass.async_create_task(
