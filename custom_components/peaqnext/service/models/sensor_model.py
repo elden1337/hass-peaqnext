@@ -46,6 +46,7 @@ class NextSensor(NextSensorData):
             non_hours_end=self.non_hours_end,
             dt_model=self.dt_model
             )
+        _LOGGER.debug(f"post_init for {self.name}.")
 
     def __getattribute__(self, attr):
         """Custom override for getattr that resolves either the overriden data or the regular."""
@@ -78,6 +79,14 @@ class NextSensor(NextSensorData):
 
     @property
     def best_close_start(self) -> HourModel:
+        # ttt = cheapest_hour(
+        #     hours_list=self.all_sequences, 
+        #     cheapest_cap=self.default_closest_cheap, 
+        #     mock_dt=self.dt_model.get_dt_now()
+        #     )
+        #_LOGGER.debug(f"best_close_start for {self.name}: {ttt}. data: {len(self.all_sequences)}, dt: {self.dt_model.get_dt_now()}, closest_cheap: {self.default_closest_cheap}")
+        if self.name.lower() == "tvättmaskin":
+            _LOGGER.debug(f"tvättmaskin:{self.dt_model.get_dt_now()}")
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=self.default_closest_cheap, 
@@ -104,6 +113,7 @@ class NextSensor(NextSensorData):
             self.consumption_type,
             self.custom_consumption_pattern_list
         )
+        _LOGGER.debug(f"segments for {self.name}: {len(segments)}")
         try:            
             self._all_sequences = get_hours_sorted(
                 prices=tuple([p - self.deduct_price for p in price_list] for price_list in self.price_model.prices),
@@ -115,6 +125,7 @@ class NextSensor(NextSensorData):
                 use_cent=self.price_model.use_cent,
                 currency=self.price_model.currency,
             )
+            _LOGGER.debug(f"seq setup for {self.name}: maxp: {max([h.price for h in self.all_sequences])}")
         except Exception as e:
             _LOGGER.error(
                 f"Unable to calculate best hours for sensor: {self.hass_entity_id}. Exception: {e}"

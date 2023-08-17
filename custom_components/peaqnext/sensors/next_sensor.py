@@ -47,18 +47,22 @@ class PeaqNextSensor(SensorEntity):
         return "mdi:clock-start"
 
     async def async_update(self) -> None:
-        status = await self.hub.async_get_updates(nametoid(self.given_name))
-        self._raw_start = self._set_raw_start(status["best_close_start"].dt_start)
-        self._all_seqeuences = self._make_dict(status.get("all_sequences", []))
-        self._state = self._make_string(status["best_close_start"])
-        self._consumption_type = status["consumption_type"]
-        self._duration_in_minutes = status["duration_in_minutes"]
-        self._consumption_in_kwh = status["consumption_in_kwh"]
-        self._non_hours_start = status.get("non_hours_start", [])
-        self._non_hours_end = status.get("non_hours_end", [])
-        self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
-        self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
-        self._price_source = status.get("price_source", "unknown").capitalize()
+        status = None
+        try:
+            status = await self.hub.async_get_updates(nametoid(self.given_name))
+            self._raw_start = self._set_raw_start(status["best_close_start"].dt_start)
+            self._all_seqeuences = self._make_dict(status.get("all_sequences", []))
+            self._state = self._make_string(status["best_close_start"])
+            self._consumption_type = status["consumption_type"]
+            self._duration_in_minutes = status["duration_in_minutes"]
+            self._consumption_in_kwh = status["consumption_in_kwh"]
+            self._non_hours_start = status.get("non_hours_start", [])
+            self._non_hours_end = status.get("non_hours_end", [])
+            self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
+            self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
+            self._price_source = status.get("price_source", "unknown").capitalize()
+        except:
+            _LOGGER.debug(f"status for {self._attr_name}: {status}")
 
     @property
     def extra_state_attributes(self) -> dict:

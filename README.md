@@ -25,7 +25,21 @@ You may also specify hours where the suggestion may not begin, or end. This can 
 When this is done, the sensors will appear and give you a status on the next best cycle to run the appliance with start-time, end-time and the total expected cost in parenthesis. 
 The state of the sensor will be cheapest cycle within 12hrs from now. It may be the cheapest overall, or may not. If you wish to see all the cycles you can open the sensor to reveal the attributes.
 
-This integration requires [Nordpool](https://github.com/custom-components/nordpool).
+This integration requires [Nordpool](https://github.com/custom-components/nordpool) or [EnergiDataService](https://github.com/MTrab/energidataservice)
+
+### Setup:
+
+In the configflow you are prompted with the following inputs:
+
+- `Name` - The name of the sensor you are creating
+- `Consumption-type` - The type of consumption pattern your appliance will run with. See examples below
+- `Custom consumption pattern` - (optional) Your own custom consumption pattern if . Inputs must be numbers separated by a comma (,). If decimals, use a point (.) separator.
+- `Total consumption in kWh` - Add the expected consumption of a cycle. 
+- `Total duration in minutes` - Total duration of a cycle.
+- `Nonhours start` - (optional) Check the hours in which your appliance cannot start
+- `Nonhours end` - (optional) Check the hours in which your appliance cannot finish
+- `Closest cheap hour` - (optional, defaults to 12h) Change the suggested "cheapest price within x hours" as sensor-state. Set to 48 or more to ignore it.
+- `Deduct price` - (optional, defaults to 0) Should you need to deduct a fixed rate from the hourly price calculations, then add it here.
 
 #### Consumption-types:
 
@@ -34,3 +48,4 @@ This integration requires [Nordpool](https://github.com/custom-components/nordpo
 * **Peak in end** - the consumption peaks towards the end of the cycle. _Example is washing machine_
 * **Peak in middle** - the consumption peaks in the middle of the cycle.
 * **Peak in beginning and end** - the consumption peaks in the beginning and end of the cycle.
+* **Custom consumption** - Custom pattern. Set your own pattern
