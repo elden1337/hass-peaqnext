@@ -15,7 +15,8 @@ def get_hours_sorted(
     currency: str = "sek",
 ) -> list[HourModel]:
     _start = _get_datetime(mock_dt)
-    sequences = list_all_hours(create_prices_dict(prices, mock_dt.hour), consumption_pattern)
+    prices_dict = create_prices_dict(prices, mock_dt.hour)
+    sequences = list_all_hours(prices_dict, consumption_pattern)
     ret = [] 
     for s in sequences:
         _dt_start = _start +timedelta(hours=s - _start.hour)
@@ -51,18 +52,14 @@ def _get_datetime(mock_dt: datetime = None) -> datetime:
     return mock_dt if mock_dt is not None else datetime.now()
 
 def cheapest_hour(
-    hours_list: list[HourModel], cheapest_cap: int|None = None, mock_dt: datetime = None
+    hours_list: list[HourModel], cheapest_cap: int|None = None, override_end: datetime|None = None, mock_dt: datetime = None
 ) -> HourModel:
     if len(hours_list) == 0:
         return HourModel(idx=0, price=0, is_valid=False)
     _now = _get_datetime(mock_dt)
     hour_limit = _now + timedelta(hours=cheapest_cap) if cheapest_cap is not None else _now + timedelta(hours=48)
-    ret = [v for v in hours_list if v.dt_start < hour_limit]
+    ret = [v for v in hours_list if v.dt_start < hour_limit and (override_end is None or v.dt_end < override_end)]
     try:
-        if cheapest_cap is None:
-            print("hour_limit", hour_limit)
-            print("now", _now)
-            print("ret[0]", ret[0])
         return ret[0]
     except Exception as e:
         _LOGGER.error(f"Unable to get cheapest hour. Exception: {e}. Data: hour_limit:{hour_limit}, available hours:{[h.dt_start.strftime('%d, %H:%M') for h in hours_list]}")
@@ -83,6 +80,6 @@ def list_all_hours(
                 internal_sum += prices_dict[p + i] * consumption_pattern[i]
             sequences[p] = round(internal_sum, 2)    
         except: 
-            print("error")
+            print("error in list_all_hours")
             continue
     return sequences

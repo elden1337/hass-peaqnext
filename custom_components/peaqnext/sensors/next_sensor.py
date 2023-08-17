@@ -1,6 +1,8 @@
 """sensor implementation goes here"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from ..const import DOMAIN, HUB
 from datetime import datetime, timedelta
 
@@ -30,9 +32,11 @@ class PeaqNextSensor(SensorEntity):
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
         self._raw_start = None
+        self._price_source: str|None = None
         self._non_hours_start = []
         self._non_hours_end = []
         self._closest_cheap_hour = None
+        self._custom_consumption_pattern = []
 
     @property
     def state(self) -> float:
@@ -43,16 +47,23 @@ class PeaqNextSensor(SensorEntity):
         return "mdi:clock-start"
 
     async def async_update(self) -> None:
-        status = await self.hub.async_get_updates(nametoid(self.given_name))
-        self._raw_start = self._set_raw_start(status["best_close_start"].dt_start)
-        self._all_seqeuences = self._make_dict(status.get("all_sequences", []))
-        self._state = self._make_string(status["best_close_start"])
-        self._consumption_type = status["consumption_type"]
-        self._duration_in_minutes = status["duration_in_minutes"]
-        self._consumption_in_kwh = status["consumption_in_kwh"]
-        self._non_hours_start = status.get("non_hours_start", [])
-        self._non_hours_end = status.get("non_hours_end", [])
-        self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
+        status = None
+        try:
+            status = await self.hub.async_get_updates(nametoid(self.given_name))
+            self._raw_start = self._set_raw_start(status["best_close_start"].dt_start)
+            self._all_seqeuences = self._make_dict(status.get("all_sequences", []))
+            self._state = self._make_string(status["best_close_start"])
+            self._consumption_type = status["consumption_type"]
+            self._duration_in_minutes = status["duration_in_minutes"]
+            self._consumption_in_kwh = status["consumption_in_kwh"]
+            self._non_hours_start = status.get("non_hours_start", [])
+            self._non_hours_end = status.get("non_hours_end", [])
+            self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
+            self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
+            self._price_source = status.get("price_source", "unknown").capitalize()
+        except Exception as e:
+            _LOGGER.debug(f"status for {self._attr_name}: {status}. Exception: {e}")
+            pass
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -67,7 +78,10 @@ class PeaqNextSensor(SensorEntity):
             attr_dict["Non hours start"] = self._non_hours_start
         if len(self._non_hours_end) > 0:
             attr_dict["Non hours end"] = self._non_hours_end
+        if self._consumption_type == ConsumptionType.Custom.value:
+            attr_dict["Custom consumption pattern"] = self._custom_consumption_pattern
         attr_dict["raw_start"]= self._raw_start
+        attr_dict["price_source"] = self._price_source
         return attr_dict
 
     @property
@@ -94,7 +108,7 @@ class PeaqNextSensor(SensorEntity):
     def _make_price(self, model: HourModel) -> str:
         if model is None:
             return ""
-        return f"({model.price} {self.hub.nordpool.currency})"
+        return f"({model.price} {self.hub.spotprice.currency})"
 
     def _make_string(self, model: HourModel) -> str:
         if not self._check_hourmodel(model):

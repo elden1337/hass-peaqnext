@@ -4,13 +4,14 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry  # pylint: disable=import-error
-from homeassistant.core import HomeAssistant  # pylint: disable=import-error
+from homeassistant.core import HomeAssistant
+from custom_components.peaqnext.services import async_prepare_register_services  # pylint: disable=import-error
 from custom_components.peaqnext.util import nametoid
 from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
+from .const import (CONF_CUSTOM_CONSUMPTION_PATTERN, CONF_DEDUCT_PRICE, DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
 
-from .const import (DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
     await hub.async_setup(internal_sensors)
 
     # conf.async_on_unload(conf.add_update_listener(async_update_entry))
-    # await async_prepare_register_services(hub, hass)
+    await async_prepare_register_services(hub, hass)
 
     for platform in PLATFORMS:
         hass.async_create_task(
@@ -40,13 +41,15 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
         sensors.append(
             NextSensor(
                 consumption_type=ConsumptionType(s[CONF_CONSUMPTION_TYPE]),
+                custom_consumption_pattern=s.get(CONF_CUSTOM_CONSUMPTION_PATTERN, None),
                 name=s[CONF_NAME],
                 hass_entity_id=nametoid(s[CONF_NAME]),
-                total_duration_in_seconds=s[CONF_TOTAL_DURATION_IN_MINUTES] * 60,
+                total_duration_in_minutes=s[CONF_TOTAL_DURATION_IN_MINUTES],
                 total_consumption_in_kwh=s[CONF_TOTAL_CONSUMPTION_IN_KWH],
                 non_hours_start=s.get(CONF_NONHOURS_START, []),
                 non_hours_end=s.get(CONF_NONHOURS_END, []),
-                default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12)
+                default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12),
+                deduct_price=s.get(CONF_DEDUCT_PRICE, 0)
             )
         )
     return sensors

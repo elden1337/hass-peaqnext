@@ -7,6 +7,7 @@ class ConsumptionType(Enum):
     PeakOut = "Peak in end"
     MidPeak = "Peak in middle"
     PeakInOut = "Peak in beginning and end"
+    Custom = "Custom consumption"
 
 
 CONSUMPTIONTYPE_NAMES = [e.value for e in ConsumptionType]
