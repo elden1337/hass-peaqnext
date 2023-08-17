@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
@@ -68,12 +69,19 @@ class NextSensor(NextSensorData):
             raise Exception(f"Invalid custom consumption pattern provided: {e}")
         return pattern
 
+    def get_end_cap(self) -> datetime|None: 
+        if self.override and self.override_model.parsed_timeout is not None:
+            _LOGGER.debug(f"Using override timeout which is: {self.override_model.parsed_timeout}")
+            return self.override_model.parsed_timeout
+        return None
+
     @property
     def best_start(self) -> HourModel:
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=None,
-            mock_dt=self.dt_model.get_dt_now() 
+            override_end=self.get_end_cap(),
+            mock_dt=self.dt_model.get_dt_now()
             )
 
     @property
@@ -81,6 +89,7 @@ class NextSensor(NextSensorData):
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=self.default_closest_cheap, 
+            override_end=self.get_end_cap(),
             mock_dt=self.dt_model.get_dt_now()
             )
 

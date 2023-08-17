@@ -76,7 +76,6 @@ def _get_segments(
         r0 = ret[1][0]
         r1 = ret[1][1] + missing
         ret[1] = (r0, r1)
-    _LOGGER.debug(f"_get_segments: {ret}")
     return ret
 
 

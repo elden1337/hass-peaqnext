@@ -31,7 +31,7 @@ async def async_prepare_register_services(hub: Hub, hass: HomeAssistant) -> None
         if _sensor:
             _LOGGER.debug("Calling {} service".format(ServiceCalls.OVERRIDE_SENSOR_DATA.value))
             await _sensor.async_override_sensor_data(
-                total_consumption_in_kwh=all.data.get("consumption_in_kwh", None), 
+                total_consumption_in_kwh=call.data.get("consumption_in_kwh", None), 
                 total_duration_in_minutes=call.data.get("duration_in_minutes", None), 
                 custom_consumption_pattern=call.data.get("custom_consumption_pattern", None),
                 non_hours_start=call.data.get("non_hours_start", None),
