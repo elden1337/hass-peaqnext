@@ -66,7 +66,6 @@ class Hub:
         if self._current_minute != datetime.now().minute:
             self._current_minute = datetime.now().minute
             await self.async_update_prices(self.prices)
-        _LOGGER.debug(f"Getting updates for sensor: {active_sensor.hass_entity_id} where bestclose is {active_sensor.best_close_start}")
         return {
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,

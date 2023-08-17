@@ -22,11 +22,8 @@ class ServiceCalls(Enum):
 
 async def async_prepare_register_services(hub: Hub, hass: HomeAssistant) -> None:
     def _parse_sensor_id(sensor_id: str) -> NextSensor|None:
-        if not sensor_id.startswith("sensor.peaqnext_"):
-            if sensor_id.startswith("peaqnext_"):
-                sensor_id = "sensor." + sensor_id
-            else:
-                sensor_id = "sensor.peaqnext_" + sensor_id
+        sensor_id = sensor_id.lower()
+        sensor_id = sensor_id.replace("sensor.", "").replace("peaqnext_", "")
         return hub.sensors_dict.get(sensor_id, None)
         
     async def async_servicehandler_override_sensor_data(call):
@@ -42,7 +39,7 @@ async def async_prepare_register_services(hub: Hub, hass: HomeAssistant) -> None
                 timeout=call.data.get("timeout", None)
                 )
         else:
-            _LOGGER.error("Unable to parse sensor id for service call: {}".format(ServiceCalls.OVERRIDE_SENSOR_DATA.value))
+            _LOGGER.error(f"Unable to parse sensor id for service call: {ServiceCalls.OVERRIDE_SENSOR_DATA.value}. input: {call.data.get('sensor_entity')}")
     
     async def async_servicehandler_cancel_override(call):
         _sensor = _parse_sensor_id(call.data.get("sensor_entity", None))
@@ -50,7 +47,7 @@ async def async_prepare_register_services(hub: Hub, hass: HomeAssistant) -> None
             _LOGGER.debug("Calling {} service".format(ServiceCalls.CANCEL_OVERRIDE.value))
             await _sensor.async_cancel_override()
         else:
-            _LOGGER.error("Unable to parse sensor id for service call: {}".format(ServiceCalls.CANCEL_OVERRIDE.value))
+            _LOGGER.error(f"Unable to parse sensor id for service call: {ServiceCalls.CANCEL_OVERRIDE.value}. input: {call.data.get('sensor_entity')}")
         
     # Register services
     SERVICES = {
