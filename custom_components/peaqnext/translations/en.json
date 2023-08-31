@@ -34,5 +34,51 @@
                 "description": "Remove existing repos or add a new repo."
             }
         }
+    },
+    "services":{
+        "override_sensor_data": {
+            "name": "Override Sensor Data",
+            "description": "bla bla bla",
+            "fields": {
+                "sensor_entity":{
+                    "name": "Sensor Entity",
+                    "description": "Entity id"
+                },
+                "duration_in_minutes":{
+                    "name": "Duration in minutes",
+                    "description": "The new duration in minutes  (optional)"
+                },
+                "consumption_in_kwh":{
+                    "name": "Consumption in kwh",
+                    "description": "The new consumption in kwh (optional)"
+                },
+                "custom_consumption_pattern":{
+                    "name": "Custom consumption pattern",
+                    "description": "The new custom consumption pattern (optional and only applies to sensors with custom_pattern)"
+                },
+                "non_hours_start":{
+                    "name": "Non hours start",
+                    "description": "The new non_hours start (optional)"
+                },
+                "non_hours_end":{
+                    "name": "Non hours end",
+                    "description": "The new non_hours end (optional)"
+                },
+                "timeout": {
+                    "name": "Timeout",
+                    "description": "Timeout for the override (optional), in hours or as datetime"
+                }
+            }
+        }, 
+        "cancel_override": {
+            "name": "Cancel Override",
+            "description": "bla bla bla",
+            "fields": {
+                "sensor_entity":{
+                    "name": "Sensor Entity",
+                    "description": "Entity id"
+                }
+            }
+        }
     }
 }

@@ -1,41 +1,23 @@
 override_sensor_data:
-  name: Override Sensor Data
-  description: bla bla bla
   fields:
     sensor_entity:
-      description: >
-        Entity id
+      required: true
       example: sensor.peaqnext_washer or peaqnext_washer or washer
     duration_in_minutes:
-      description: >
-        The new duration in minutes  (optional)
       example: 60
     consumption_in_kwh:
-      description: >
-        The new consumption in kwh (optional)
       example: 0.5
     custom_consumption_pattern:
-      description: >
-        The new custom consumption pattern (optional and only applies to sensors with custom_pattern)
       example: 1, 1.1, 2, 0
     non_hours_start:
-      description: >
-        The new non_hours start (optional)
       example: [22, 23]
     non_hours_end:
-      description: >
-        The new non_hours end (optional)
       example: [6, 7]
     timeout:
-      description: >
-        Timeout for the override (optional), in hours or as datetime
       example: 8 or 2023-01-01 03:00:00
 
 cancel_override:
-  name: Cancel Override
-  description: bla bla bla
   fields:
     sensor_entity:
-      description: >
-        Entity id
+      required: true
       example: sensor.peaqnext_washer or peaqnext_washer or washer
