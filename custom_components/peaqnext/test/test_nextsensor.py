@@ -327,3 +327,15 @@ def _make_hours_display(model: HourModel) -> str:
     tomorrow2: str = _get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
     ret = f"{model.dt_start.strftime('%H:%M')}{tomorrow1}-{model.dt_end.strftime('%H:%M')}{tomorrow2}"
     return f"{_add_now_to_date(model)}{ret}"
+
+@pytest.mark.asyncio
+async def test_correct_sorting_negative_prices_2():    
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
+    s.dt_model.set_hour(2)   
+    await s.async_update_sensor((_p.PNEGATIVE2,[]), use_cent=False)        
+    for h in s.all_sequences:
+        print(h)
+    all_seq_copy = s.all_sequences[:]
+    all_seq_copy.sort(key=lambda x: (x.comparer, x.dt_start))
+    assert all_seq_copy == s.all_sequences
+    assert 1 > 2

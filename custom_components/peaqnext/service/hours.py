@@ -32,6 +32,11 @@ def get_hours_sorted(
             sum_consumption_pattern=sum(consumption_pattern),
             comparer_addition = currency.lower() == "eur"
         ))
+    if any([h.comparer <= 0 for h in ret]):
+        _min_val = min([h.comparer for h in ret])
+        for r in ret:
+            r.comparer = r.comparer + abs(_min_val)+0.01
+
     return list(sorted(ret, key=lambda i: (i.comparer, i.dt_start)))
 
 
