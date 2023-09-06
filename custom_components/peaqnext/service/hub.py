@@ -22,12 +22,10 @@ class Hub:
     def __init__(self, hass, test:bool = False) -> Any:
         if not test:
             self.state_machine: HomeAssistant = hass
-        #self.sensors: list[NextSensor] = []
         self._current_minute: int = None
         self.prices: tuple[list,list] = ([], [])
         self.spotprice: ISpotPrice = SpotPriceFactory.create(self, test)
         self.latest_spotprice_update = 0
-        #self.sensors_dict: dict[str:NextSensor] = {}
         if not test:
             async_track_state_change(
                 self.state_machine,
@@ -42,7 +40,7 @@ class Hub:
 
     async def async_update_prices(self, prices: tuple[list,list]) -> None:
         self.prices = prices
-        for s in self.sensors:
+        for s in self.sensors is s.should_update():
             try:
                 await s.async_update_sensor(prices, self.spotprice.use_cent, self.spotprice.currency)
             except Exception as e:
@@ -64,6 +62,7 @@ class Hub:
         if active_sensor is None:
             return {}
         if self._current_minute != datetime.now().minute:
+            # todo: alter here to fix the setting with updating too often.
             self._current_minute = datetime.now().minute
             await self.async_update_prices(self.prices)
         return {

@@ -27,8 +27,7 @@ class NextSensor(NextSensorData):
     hass_entity_id: str = "sensor.next_sensor"
     custom_consumption_pattern: str|None = field(repr=False, hash=False, compare=False, default=None)
     default_closest_cheap: int = 12
-    deduct_price: float = 0
-    use_cent: bool = False
+    update_minute: bool = True
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
@@ -36,6 +35,7 @@ class NextSensor(NextSensorData):
     price_model: SensorPrices = field(default_factory=lambda: SensorPrices())
     override_model: NextSensorOverride = field(default_factory=lambda: NextSensorOverride())
     override: bool = field(default=False)
+    _latest_update: int = field(default=None, init=True, repr=False, hash=False, compare=False)
 
     def __post_init__(self):
         self.custom_consumption_pattern_list = self._validate_custom_pattern(self.custom_consumption_pattern)
@@ -45,7 +45,9 @@ class NextSensor(NextSensorData):
             custom_consumption_pattern_list=self.custom_consumption_pattern_list, 
             non_hours_start=self.non_hours_start, 
             non_hours_end=self.non_hours_end,
-            dt_model=self.dt_model
+            dt_model=self.dt_model,
+            deduct_price=self.deduct_price,
+            use_cent=self.use_cent
             )
 
     def __getattribute__(self, attr):
@@ -99,6 +101,31 @@ class NextSensor(NextSensorData):
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
         self._update_sensor(prices, use_cent, currency)
+
+    def should_update(self) -> bool:
+        new = datetime.now().minute * self.update_minute + datetime.now().hour * (not self.update_minute)
+        if self._latest_update is None:
+            self._latest_update = new
+            return True
+        if self._latest_update != new and any(
+            [
+                all(
+                    [
+                        self.update_minute, 
+                        new == datetime.now().minute
+                    ]
+                ), 
+                all(
+                    [
+                        not self.update_minute, 
+                        new == datetime.now().hour
+                    ]
+                )
+            ]
+            ):
+            self._latest_update = new
+            return True
+        return False
 
     def _update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
         self.price_model.use_cent = use_cent

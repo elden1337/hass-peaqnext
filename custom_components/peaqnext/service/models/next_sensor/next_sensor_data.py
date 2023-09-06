@@ -7,7 +7,9 @@ class NextSensorData:
     custom_consumption_pattern_list: list[int|float] = field(repr=False, hash=False, compare=False, default_factory=lambda: [])
     non_hours_start: list[int] = field(default_factory=lambda: [])
     non_hours_end: list[int] = field(default_factory=lambda: [])
-
+    deduct_price: float = 0
+    use_cent: bool = False
+    
     @property
     def total_duration_in_seconds(self) -> int:
         if self.total_duration_in_minutes is None:
