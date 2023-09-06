@@ -32,8 +32,10 @@ def get_hours_sorted(
             sum_consumption_pattern=sum(consumption_pattern),
             comparer_addition = currency.lower() == "eur"
         ))
-    if any([h.comparer <= 0 for h in ret]):
-        _min_val = min([h.comparer for h in ret])
+    
+    _min_val = min([h.comparer for h in ret])
+    """Adjust comparers to positive numbers"""
+    if _min_val <= 0:
         for r in ret:
             r.comparer = r.comparer + abs(_min_val)+0.01
 
