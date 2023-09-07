@@ -12,7 +12,6 @@ _LOGGER = logging.getLogger(__name__)
 SPOTPRICE_UPDATE_FORCE = 60
 
 
-
 class Hub:
     hub_id = 33512
     hubname = "PeaqNext"
@@ -40,7 +39,7 @@ class Hub:
 
     async def async_update_prices(self, prices: tuple[list,list]) -> None:
         self.prices = prices
-        for s in self.sensors is s.should_update():
+        for s in [s for s in self.sensors if s.should_update()]:
             try:
                 await s.async_update_sensor(prices, self.spotprice.use_cent, self.spotprice.currency)
             except Exception as e:
@@ -61,10 +60,7 @@ class Hub:
     async def async_get_sensor_updates(self, active_sensor: NextSensor) -> dict:
         if active_sensor is None:
             return {}
-        if self._current_minute != datetime.now().minute:
-            # todo: alter here to fix the setting with updating too often.
-            self._current_minute = datetime.now().minute
-            await self.async_update_prices(self.prices)
+        await self.async_update_prices(self.prices)
         return {
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,

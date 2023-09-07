@@ -12,4 +12,4 @@ CONF_NONHOURS_END = "non_hours_end"
 CONF_CLOSEST_CHEAP = "closest_cheap_hour"
 CONF_CUSTOM_CONSUMPTION_PATTERN = "custom_consumption_pattern"
 CONF_DEDUCT_PRICE = "deduct_price"
-
+CONF_UPDATE_MINUTE = "update_minute"

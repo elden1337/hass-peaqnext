@@ -23,7 +23,8 @@ from .const import (
     CONF_NONHOURS_START,
     CONF_NONHOURS_END,
     CONF_CLOSEST_CHEAP,
-    CONF_CUSTOM_CONSUMPTION_PATTERN
+    CONF_CUSTOM_CONSUMPTION_PATTERN,
+    CONF_UPDATE_MINUTE
 )  # pylint:disable=unused-import
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ SENSORS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NONHOURS_END): cv.multi_select(list(range(0, 24))),
         vol.Optional(CONF_CLOSEST_CHEAP, default=12): cv.positive_float,
         vol.Optional(CONF_DEDUCT_PRICE, default=0): cv.positive_float,
+        vol.Optional(CONF_UPDATE_MINUTE, default=True): cv.boolean,
         vol.Optional("add_another_sensor"): cv.boolean,
     }
 )
@@ -74,7 +76,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_NONHOURS_START: user_input.get(CONF_NONHOURS_START,[]),
                     CONF_NONHOURS_END: user_input.get(CONF_NONHOURS_END,[]),
                     CONF_CLOSEST_CHEAP: user_input.get(CONF_CLOSEST_CHEAP, 12),
-                    CONF_DEDUCT_PRICE: user_input.get(CONF_DEDUCT_PRICE, 0)
+                    CONF_DEDUCT_PRICE: user_input.get(CONF_DEDUCT_PRICE, 0),
+                    CONF_UPDATE_MINUTE: user_input.get(CONF_UPDATE_MINUTE, True)
                 }
             )
             if user_input.get("add_another_sensor", False):
