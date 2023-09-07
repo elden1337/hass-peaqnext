@@ -9,7 +9,8 @@ class NextSensorData:
     non_hours_end: list[int] = field(default_factory=lambda: [])
     deduct_price: float = 0
     use_cent: bool = False
-    
+    update_minute: bool = True
+
     @property
     def total_duration_in_seconds(self) -> int:
         if self.total_duration_in_minutes is None:

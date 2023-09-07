@@ -39,7 +39,7 @@ class Hub:
 
     async def async_update_prices(self, prices: tuple[list,list]) -> None:
         self.prices = prices
-        for s in [s for s in self.sensors if s.should_update()]:
+        for s in self.sensors:
             try:
                 await s.async_update_sensor(prices, self.spotprice.use_cent, self.spotprice.currency)
             except Exception as e:
@@ -73,6 +73,7 @@ class Hub:
             "closest_cheap_hour": active_sensor.default_closest_cheap,
             "custom_consumption_pattern": active_sensor.custom_consumption_pattern_list,
             "price_source": self.spotprice.source,
+            "update_minute": active_sensor.update_minute
         }
 
     @callback

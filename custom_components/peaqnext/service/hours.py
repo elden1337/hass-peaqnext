@@ -13,6 +13,7 @@ def get_hours_sorted(
     mock_dt: datetime|None = None,
     use_cent: bool = False,
     currency: str = "sek",
+    update_per_minute: bool = True
 ) -> list[HourModel]:
     _start = _get_datetime(mock_dt)
     prices_dict = create_prices_dict(prices, mock_dt.hour)
@@ -20,6 +21,9 @@ def get_hours_sorted(
     ret = [] 
     for s in sequences:
         _dt_start = _start +timedelta(hours=s - _start.hour)
+        if not update_per_minute:
+            _dt_start = _dt_start.replace(minute=0)
+            _LOGGER.debug(f"Update per minute is false. Setting minute to 0. New time: {_dt_start}")
         _end = _dt_start + timedelta(seconds=duration_in_seconds)
         if _blocked_hour(s, _end.hour, non_hours_start, non_hours_end):
             continue
@@ -33,7 +37,7 @@ def get_hours_sorted(
             comparer_addition = currency.lower() == "eur"
         ))
     
-    _min_val = min([h.comparer for h in ret])
+    _min_val = min([h.comparer for h in ret], 1)
     """Adjust comparers to positive numbers"""
     if _min_val <= 0:
         for r in ret:

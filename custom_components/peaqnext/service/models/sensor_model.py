@@ -27,9 +27,6 @@ class NextSensor(NextSensorData):
     hass_entity_id: str = "sensor.next_sensor"
     custom_consumption_pattern: str|None = field(repr=False, hash=False, compare=False, default=None)
     default_closest_cheap: int = 12
-    update_minute: bool = True
-    non_hours_start: list[int] = field(default_factory=lambda: [])
-    non_hours_end: list[int] = field(default_factory=lambda: [])
     _all_sequences: list[HourModel] = field(default_factory=lambda: [])
     dt_model: DTModel = field(default_factory=lambda: DTModel())
     price_model: SensorPrices = field(default_factory=lambda: SensorPrices())
@@ -47,7 +44,8 @@ class NextSensor(NextSensorData):
             non_hours_end=self.non_hours_end,
             dt_model=self.dt_model,
             deduct_price=self.deduct_price,
-            use_cent=self.use_cent
+            use_cent=self.use_cent, 
+            update_minute=self.update_minute,
             )
 
     def __getattribute__(self, attr):
@@ -100,7 +98,8 @@ class NextSensor(NextSensorData):
         return [h for h in self._all_sequences if h.dt_start >= self.dt_model.get_dt_now() and (self.get_end_cap() is None or h.dt_end < self.get_end_cap())]
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
-        self._update_sensor(prices, use_cent, currency)
+        if self.should_update():
+            self._update_sensor(prices, use_cent, currency)
 
     def should_update(self) -> bool:
         new = datetime.now().minute * self.update_minute + datetime.now().hour * (not self.update_minute)
@@ -150,6 +149,7 @@ class NextSensor(NextSensorData):
                 mock_dt =self.dt_model.get_dt_now(),
                 use_cent=self.price_model.use_cent,
                 currency=self.price_model.currency,
+                update_per_minute=self.update_minute
             )
         except Exception as e:
             _LOGGER.error(
