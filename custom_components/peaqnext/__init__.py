@@ -50,7 +50,7 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 non_hours_end=s.get(CONF_NONHOURS_END, []),
                 default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12),
                 deduct_price=s.get(CONF_DEDUCT_PRICE, 0),
-                update_minute=s.get(CONF_UPDATE_MINUTE, True),
+                update_by=s.get(CONF_UPDATE_MINUTE, True),
             )
         )
     return sensors

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from custom_components.peaqnext.service.models.next_sensor.enums.calculate_by import CalculateBy
+from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
 
 @dataclass
 class NextSensorData:
@@ -10,7 +11,7 @@ class NextSensorData:
     non_hours_end: list[int] = field(default_factory=lambda: [])
     deduct_price: float = 0
     use_cent: bool = False
-    update_minute: bool = True
+    update_by: UpdateBy = UpdateBy.MINUTE
     calculate_by: CalculateBy = CalculateBy.STARTTIME
 
     @property

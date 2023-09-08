@@ -4,6 +4,7 @@ from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
 from custom_components.peaqnext.service.models.next_sensor.dt_model import DTModel
+from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
 from custom_components.peaqnext.service.models.next_sensor.next_sensor_data import NextSensorData
 from custom_components.peaqnext.service.models.next_sensor.next_sensor_override import NextSensorOverride
 from custom_components.peaqnext.service.models.sensor_prices import SensorPrices
@@ -45,7 +46,7 @@ class NextSensor(NextSensorData):
             dt_model=self.dt_model,
             deduct_price=self.deduct_price,
             use_cent=self.use_cent, 
-            update_minute=self.update_minute,
+            update_by=self.update_by,
             )
 
     def __getattribute__(self, attr):
@@ -92,7 +93,7 @@ class NextSensor(NextSensorData):
     @property
     def all_sequences(self) -> list[HourModel]:
         _now = self.dt_model.get_dt_now()
-        if not self.update_minute:
+        if self.update_by == UpdateBy.HOUR:
             _now = _now.replace(minute=0, second=0, microsecond=0)
         return [h for h in self._all_sequences if h.dt_start >= _now and h.is_valid and (self._get_end_cap() is None or h.dt_end < self._get_end_cap())]
 
@@ -110,7 +111,7 @@ class NextSensor(NextSensorData):
             self._latest_update = new
             return True
         if self._latest_update != new:
-            if new >= self._latest_update + deltadiff[int(self.update_minute)]:
+            if new >= self._latest_update + deltadiff[int(self.update_by == UpdateBy.MINUTE)]:
                 self._latest_update = new
                 return True
         return False
@@ -138,7 +139,7 @@ class NextSensor(NextSensorData):
                 mock_dt =self.dt_model.get_dt_now(),
                 use_cent=self.price_model.use_cent,
                 currency=self.price_model.currency,
-                update_per_minute=self.update_minute
+                update_per_minute=self.update_by
             )
         except Exception as e:
             _LOGGER.error(

@@ -37,7 +37,7 @@ class PeaqNextSensor(SensorEntity):
         self._non_hours_end = []
         self._closest_cheap_hour = None
         self._custom_consumption_pattern = []
-        self._update_minute = None
+        self._update_by = None
         self._calculate_by = None
 
     @property
@@ -63,7 +63,7 @@ class PeaqNextSensor(SensorEntity):
             self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
             self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
             self._price_source = status.get("price_source", "unknown").capitalize()
-            self._update_minute = status.get("update_minute", True)
+            self._update_by = status.get("update_by", "unknown").capitalize()
             self._calculate_by = status.get("calculate_by", "unknown").capitalize()
         except Exception as e:
             _LOGGER.debug(f"status for {self._attr_name}: {status}. Exception: {e}")
@@ -85,8 +85,8 @@ class PeaqNextSensor(SensorEntity):
         if self._consumption_type == ConsumptionType.Custom.value:
             attr_dict["Custom consumption pattern"] = self._custom_consumption_pattern
         attr_dict["raw_start"]= self._raw_start
-        attr_dict["update_every_minute"] = self._update_minute
         attr_dict["price_source"] = self._price_source
+        attr_dict["update_by"] = self._update_by
         attr_dict["calculate_by"] = self._calculate_by
         return attr_dict
 

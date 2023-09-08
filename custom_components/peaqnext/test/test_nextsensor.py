@@ -341,7 +341,7 @@ async def test_correct_sorting_negative_prices_2():
 
 @pytest.mark.asyncio
 async def test_cheapest_hour_update_hourly():
-    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=62, total_consumption_in_kwh=1.1, update_minute=False)
+    s = NextSensor(consumption_type=ConsumptionType.PeakIn, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=62, total_consumption_in_kwh=1.1, update_by=False)
     s.dt_model.set_date(date(2023,7,30))
     s.dt_model.set_hour(20)
     await s.async_update_sensor([_p.P230731,_p.P230801])
