@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
@@ -95,35 +95,27 @@ class NextSensor(NextSensorData):
 
     @property
     def all_sequences(self) -> list[HourModel]:
-        return [h for h in self._all_sequences if h.dt_start >= self.dt_model.get_dt_now() and (self.get_end_cap() is None or h.dt_end < self.get_end_cap())]
+        _now = self.dt_model.get_dt_now()
+        if not self.update_minute:
+            _now = _now.replace(minute=0, second=0, microsecond=0)
+        return [h for h in self._all_sequences if h.dt_start >= _now and h.is_valid and (self.get_end_cap() is None or h.dt_end < self.get_end_cap())]
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
         if self.should_update():
             self._update_sensor(prices, use_cent, currency)
 
     def should_update(self) -> bool:
-        new = datetime.now().minute * self.update_minute + datetime.now().hour * (not self.update_minute)
+        new = self.dt_model.get_dt_now()
         if self._latest_update is None:
             self._latest_update = new
             return True
-        if self._latest_update != new and any(
-            [
-                all(
-                    [
-                        self.update_minute, 
-                        new == datetime.now().minute
-                    ]
-                ), 
-                all(
-                    [
-                        not self.update_minute, 
-                        new == datetime.now().hour
-                    ]
-                )
-            ]
-            ):
-            self._latest_update = new
-            return True
+        if self._latest_update != new:
+            if self.update_minute and new >= self._latest_update + timedelta(minutes=1):
+                self._latest_update = new
+                return True
+            if not self.update_minute and new >= self._latest_update + timedelta(hours=1):
+                self._latest_update = new
+                return True
         return False
 
     def _update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:

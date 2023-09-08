@@ -122,11 +122,12 @@ class PeaqNextSensor(SensorEntity):
     def _set_raw_start(start: datetime) -> str:
         return start.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
-    @staticmethod
-    def _check_hourmodel(model: HourModel) -> bool:
+    def _check_hourmodel(self, model: HourModel) -> bool:
         if model is None:
+            _LOGGER.debug(f"model is None {self.name}")
             return False
         elif not model.is_valid:
+            _LOGGER.debug(f"model is invalid {self.name}. Model: {model}")
             return False
         return True
 

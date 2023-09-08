@@ -28,5 +28,9 @@ async def test_override_consumption():
     s.dt_model.set_hour(4)   
     await s.async_update_sensor((_p.P230729BE,[]))   
     print(s.all_sequences)
-    assert s.all_sequences[0].consumption == 1.2
+    assert s.all_sequences[0].sum_consumption_pattern == 10
+    await s.async_override_sensor_data(total_consumption_in_kwh=20)
+    assert s.all_sequences[0].sum_consumption_pattern == 20
+    await s.async_override_sensor_data(total_consumption_in_kwh=200)
+    assert s.all_sequences[0].sum_consumption_pattern == 200
     
