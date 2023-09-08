@@ -69,18 +69,14 @@ class NextSensor(NextSensorData):
             raise Exception(f"Invalid custom consumption pattern provided: {e}")
         return pattern
 
-    def get_end_cap(self) -> datetime|None: 
-        if self.override and self.override_model.parsed_timeout is not None:
-            _LOGGER.debug(f"Using override timeout which is: {self.override_model.parsed_timeout}")
-            return self.override_model.parsed_timeout
-        return None
+    
 
     @property
     def best_start(self) -> HourModel:
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=None,
-            override_end=self.get_end_cap(),
+            override_end=self._get_end_cap(),
             mock_dt=self.dt_model.get_dt_now()
             )
 
@@ -89,7 +85,7 @@ class NextSensor(NextSensorData):
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=self.default_closest_cheap, 
-            override_end=self.get_end_cap(),
+            override_end=self._get_end_cap(),
             mock_dt=self.dt_model.get_dt_now()
             )
 
@@ -98,22 +94,23 @@ class NextSensor(NextSensorData):
         _now = self.dt_model.get_dt_now()
         if not self.update_minute:
             _now = _now.replace(minute=0, second=0, microsecond=0)
-        return [h for h in self._all_sequences if h.dt_start >= _now and h.is_valid and (self.get_end_cap() is None or h.dt_end < self.get_end_cap())]
+        return [h for h in self._all_sequences if h.dt_start >= _now and h.is_valid and (self._get_end_cap() is None or h.dt_end < self._get_end_cap())]
 
     async def async_update_sensor(self, prices: tuple[list,list], use_cent:bool = False, currency:str = "sek") -> None:
-        if self.should_update():
+        if self._should_update():
             self._update_sensor(prices, use_cent, currency)
 
-    def should_update(self) -> bool:
+    def _should_update(self) -> bool:
+        deltadiff = {
+            1: timedelta(minutes=1),
+            0: timedelta(hours=1),
+        }
         new = self.dt_model.get_dt_now()
         if self._latest_update is None:
             self._latest_update = new
             return True
         if self._latest_update != new:
-            if self.update_minute and new >= self._latest_update + timedelta(minutes=1):
-                self._latest_update = new
-                return True
-            if not self.update_minute and new >= self._latest_update + timedelta(hours=1):
+            if new >= self._latest_update + deltadiff[int(self.update_minute)]:
                 self._latest_update = new
                 return True
         return False
@@ -147,6 +144,12 @@ class NextSensor(NextSensorData):
             _LOGGER.error(
                 f"Unable to calculate best hours for sensor: {self.hass_entity_id}. Exception: {e}"
             )
+
+    def _get_end_cap(self) -> datetime|None: 
+        if self.override and self.override_model.parsed_timeout is not None:
+            _LOGGER.debug(f"Using override timeout which is: {self.override_model.parsed_timeout}")
+            return self.override_model.parsed_timeout
+        return None
 
     async def async_override_sensor_data(
             self,
