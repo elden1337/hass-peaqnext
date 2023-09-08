@@ -40,6 +40,8 @@ In the configflow you are prompted with the following inputs:
 - `Nonhours end` - (optional) Check the hours in which your appliance cannot finish
 - `Closest cheap hour` - (optional, defaults to 12h) Change the suggested "cheapest price within x hours" as sensor-state. Set to 48 or more to ignore it.
 - `Deduct price` - (optional, defaults to 0) Should you need to deduct a fixed rate from the hourly price calculations, then add it here.
+- `Update by` - Choose if you want the sensor update every minute or in the beginning of every hour.
+- `Calculate by` - Choose if you want the sensor to calculate based on start-time or end-time.
 
 #### Consumption-types:
 
