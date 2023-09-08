@@ -4,6 +4,7 @@ from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
 from custom_components.peaqnext.service.models.next_sensor.dt_model import DTModel
+from custom_components.peaqnext.service.models.next_sensor.enums.calculate_by import CalculateBy
 from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
 from custom_components.peaqnext.service.models.next_sensor.next_sensor_data import NextSensorData
 from custom_components.peaqnext.service.models.next_sensor.next_sensor_override import NextSensorOverride
@@ -47,6 +48,7 @@ class NextSensor(NextSensorData):
             deduct_price=self.deduct_price,
             use_cent=self.use_cent, 
             update_by=self.update_by,
+            calculate_by=self.calculate_by
             )
 
     def __getattribute__(self, attr):
@@ -68,9 +70,7 @@ class NextSensor(NextSensorData):
             pattern = [float(x) for x in pattern]
         except Exception as e:
             raise Exception(f"Invalid custom consumption pattern provided: {e}")
-        return pattern
-
-    
+        return pattern  
 
     @property
     def best_start(self) -> HourModel:
@@ -139,7 +139,8 @@ class NextSensor(NextSensorData):
                 mock_dt =self.dt_model.get_dt_now(),
                 use_cent=self.price_model.use_cent,
                 currency=self.price_model.currency,
-                update_per_minute=self.update_by
+                update_per_minute=(self.update_by == UpdateBy.MINUTE),
+                calculate_end = (self.calculate_by == CalculateBy.ENDTIME)
             )
         except Exception as e:
             _LOGGER.error(
