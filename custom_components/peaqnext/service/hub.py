@@ -73,7 +73,8 @@ class Hub:
             "closest_cheap_hour": active_sensor.default_closest_cheap,
             "custom_consumption_pattern": active_sensor.custom_consumption_pattern_list,
             "price_source": self.spotprice.source,
-            "update_minute": active_sensor.update_minute
+            "update_minute": active_sensor.update_minute,
+            "calculate_by": active_sensor.calculate_by.value,
         }
 
     @callback

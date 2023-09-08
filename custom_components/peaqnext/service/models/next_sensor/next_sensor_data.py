@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from custom_components.peaqnext.service.models.next_sensor.enums.calculate_by import CalculateBy
 
 @dataclass
 class NextSensorData:
@@ -10,6 +11,7 @@ class NextSensorData:
     deduct_price: float = 0
     use_cent: bool = False
     update_minute: bool = True
+    calculate_by: CalculateBy = CalculateBy.STARTTIME
 
     @property
     def total_duration_in_seconds(self) -> int:
