@@ -61,6 +61,12 @@ class Hub:
         if active_sensor is None:
             return {}
         await self.async_update_prices(self.prices)
+        try:
+            update_by = active_sensor.update_by.value,
+            calculate_by = active_sensor.calculate_by.value,
+        except Exception as e:
+            _LOGGER.error(f"Unable to get sensor updates. Exception: {e}, {active_sensor.calculate_by.value}, {active_sensor.update_by.value}")
+            return {}
         return {
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,

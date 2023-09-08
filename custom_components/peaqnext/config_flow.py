@@ -50,7 +50,7 @@ SENSORS_SCHEMA = vol.Schema(
         ): vol.In([h.value for h in UpdateBy]),
         vol.Optional(
             CONF_CALCULATE_BY,
-            default=CalculateBy.START.value,
+            default=CalculateBy.STARTTIME.value,
         ): vol.In([h.value for h in CalculateBy]),
         vol.Optional("add_another_sensor"): cv.boolean,
     }

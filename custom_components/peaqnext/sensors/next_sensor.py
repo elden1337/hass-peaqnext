@@ -66,7 +66,7 @@ class PeaqNextSensor(SensorEntity):
             self._update_by = status.get("update_by", "unknown").capitalize()
             self._calculate_by = status.get("calculate_by", "unknown").capitalize()
         except Exception as e:
-            _LOGGER.debug(f"status for {self._attr_name}: {status}. Exception: {e}")
+            _LOGGER.debug(f"status for {self.given_name}: {status}. Exception: {e}")
             pass
 
     @property

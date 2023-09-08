@@ -5,6 +5,8 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry  # pylint: disable=import-error
 from homeassistant.core import HomeAssistant
+from custom_components.peaqnext.service.models.next_sensor.enums.calculate_by import CalculateBy
+from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
 from custom_components.peaqnext.services import async_prepare_register_services  # pylint: disable=import-error
 from custom_components.peaqnext.util import nametoid
 from custom_components.peaqnext.service.hub import Hub
@@ -50,8 +52,8 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 non_hours_end=s.get(CONF_NONHOURS_END, []),
                 default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12),
                 deduct_price=s.get(CONF_DEDUCT_PRICE, 0),
-                update_by=s.get(CONF_UPDATE_BY, ""),
-                calculate_by=s.get(CONF_CALCULATE_BY, ""),
+                update_by=UpdateBy(s.get(CONF_UPDATE_BY)),
+                calculate_by=CalculateBy(s.get(CONF_CALCULATE_BY)),
             )
         )
     return sensors
