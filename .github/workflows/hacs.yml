@@ -9,7 +9,6 @@ on:
   schedule:
     - cron: "0 0 * * *"
   
-
 jobs:
   hacs:
     name: HACS Action
