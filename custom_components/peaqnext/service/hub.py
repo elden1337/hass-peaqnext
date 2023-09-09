@@ -13,16 +13,16 @@ SPOTPRICE_UPDATE_FORCE = 60
 
 
 class Hub:
-    hub_id = 33512
     hubname = "PeaqNext"
-    sensors_dict: dict[str:NextSensor] = {}
-    sensors: list[NextSensor] = []
-
-    def __init__(self, hass, test:bool = False) -> Any:
+    
+    def __init__(self, hass, hub_id, test:bool = False) -> Any:
+        self.hub_id = hub_id
         if not test:
             self.state_machine: HomeAssistant = hass
         self._current_minute: int = None
         self.prices: tuple[list,list] = ([], [])
+        self.sensors_dict: dict[str:NextSensor] = {}
+        self.sensors: list[NextSensor] = []
         self.spotprice: ISpotPrice = SpotPriceFactory.create(self, test)
         self.latest_spotprice_update = 0
         if not test:

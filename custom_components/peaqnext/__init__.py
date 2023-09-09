@@ -13,7 +13,8 @@ from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 from .const import (CONF_CALCULATE_BY, CONF_CUSTOM_CONSUMPTION_PATTERN, CONF_DEDUCT_PRICE, CONF_UPDATE_BY, DOMAIN, PLATFORMS, HUB, CONF_NONHOURS_END, CONF_CONSUMPTION_TYPE, CONF_NAME, CONF_NONHOURS_START, CONF_SENSORS, CONF_TOTAL_CONSUMPTION_IN_KWH, CONF_TOTAL_DURATION_IN_MINUTES, CONF_CLOSEST_CHEAP)
-
+from datetime import datetime
+from uuid import uuid4
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][conf.entry_id] = conf.data
-    hub = Hub(hass)
+    hub = Hub(hass, hub_id=datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4()))
     hass.data[DOMAIN][HUB] = hub
     internal_sensors = await async_create_internal_sensors(conf)
     await hub.async_setup(internal_sensors)

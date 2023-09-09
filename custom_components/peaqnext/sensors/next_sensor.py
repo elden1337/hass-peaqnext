@@ -94,7 +94,7 @@ class PeaqNextSensor(SensorEntity):
     def device_info(self):
         return {
             "identifiers": {(DOMAIN, self.hub.hub_id)},
-            "name": f"{DOMAIN} {HUB}",
+            "name": f"{DOMAIN} {HUB} ({self.hub.hub_id})",
             "sw_version": 1,
             "model": "Normal",
             "manufacturer": "Peaq systems",
