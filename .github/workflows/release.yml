@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release_zip_file:
+    name: Prepare release asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: ZIP peaqnext Dir
+        run: |
+          cd ${{ github.workspace }}/custom_components/peaqnext
+          zip peaqnext.zip -r ./
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@2.7.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/custom_components/peaqnext/peaqnext.zip
+          asset_name: peaqnext.zip
+          tag: ${{ github.ref }}
+          overwrite: true
