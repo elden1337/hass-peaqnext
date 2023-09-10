@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry  # pylint: disable=import-error
+from homeassistant.helpers.device_registry import DeviceEntry  # pylint: disable=import-error
 from homeassistant.core import HomeAssistant
 from custom_components.peaqnext.service.models.next_sensor.enums.calculate_by import CalculateBy
 from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
@@ -37,6 +38,10 @@ async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
 
     return True
 
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, config_entry: ConfigEntry, device_entry: DeviceEntry
+) -> bool:
+    """Remove a config entry from a device."""
 
 async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
     sensors = []
