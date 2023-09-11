@@ -114,18 +114,18 @@ class PeaqNextSensor(SensorEntity):
     def _make_price(self, model: HourModel) -> str:
         if model is None:
             return ""
-        return f"({model.price} {self.hub.spotprice.currency})"
+        return self.currency_translation(model.price)
 
-    def currency_translation(
-        value: float | str | None, currency, use_cent: bool = False
-    ) -> str:
+    def currency_translation(self,value: float | str | None) -> str:
+        use_cent = self.hub.spotprice.use_cent
+        currency= self.hub.spotprice.currency
         value = "-" if value is None else value
-        match currency:
+        match currency.upper():
             case "EUR":
                 ret = f"{value}¢" if use_cent else f"€ {value}"
             case "SEK":
                 ret = f"{value} öre" if use_cent else f"{value} kr"
-            case "NOK":
+            case "NOK"|"DKK":
                 ret = f"{value} øre" if use_cent else f"{value} kr"
             case _:
                 ret = f"{value} {currency}"
