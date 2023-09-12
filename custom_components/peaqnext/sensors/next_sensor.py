@@ -145,7 +145,7 @@ class PeaqNextSensor(SensorEntity):
             _LOGGER.debug(f"model is None {self.name}")
             return False
         elif not model.is_valid:
-            _LOGGER.debug(f"model is invalid {self.name}. Model: {model}")
+            #_LOGGER.debug(f"model is invalid {self.name}. Model: {model}")
             return False
         return True
 
