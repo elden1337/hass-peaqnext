@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from custom_components.peaqnext.service.models.consumption_type import ConsumptionType
+from custom_components.peaqnext.service.models.next_sensor.enums.calculate_by import CalculateBy
+from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
 from ..const import DOMAIN, HUB
 from datetime import datetime, timedelta
 
@@ -37,8 +39,9 @@ class PeaqNextSensor(SensorEntity):
         self._non_hours_end = []
         self._closest_cheap_hour = None
         self._custom_consumption_pattern = []
-        self._update_by = None
-        self._calculate_by = None
+        self._update_by = UpdateBy.MINUTE
+        self._calculate_by = CalculateBy.STARTTIME
+        self._relative_time = False
 
     @property
     def state(self) -> float:
@@ -63,8 +66,9 @@ class PeaqNextSensor(SensorEntity):
             self._closest_cheap_hour = status.get("closest_cheap_hour", 12)
             self._custom_consumption_pattern = status.get("custom_consumption_pattern", [])
             self._price_source = status.get("price_source", "unknown").capitalize()
-            self._update_by = status.get("update_by", "unknown").capitalize()
-            self._calculate_by = status.get("calculate_by", "unknown").capitalize()
+            self._update_by = status.get("update_by", None)
+            self._calculate_by = status.get("calculate_by", None)
+            self._relative_time = status.get("relative_time", False)
         except Exception as e:
             _LOGGER.debug(f"status for {self.given_name}: {status}. Exception: {e}")
             pass
@@ -77,6 +81,10 @@ class PeaqNextSensor(SensorEntity):
             "Duration in minutes": self._duration_in_minutes,
             "Consumption in kWh": self._consumption_in_kwh,
             "Closest cheap hour limit": f"{self._closest_cheap_hour}h",
+            "raw_start": self._raw_start,
+            "price_source": self._price_source,
+            "update_by": self._update_by.value.capitalize(),
+            "calculate_by": self._calculate_by.value.capitalize()
         }
         if len(self._non_hours_start) > 0:
             attr_dict["Non hours start"] = self._non_hours_start
@@ -84,10 +92,6 @@ class PeaqNextSensor(SensorEntity):
             attr_dict["Non hours end"] = self._non_hours_end
         if self._consumption_type == ConsumptionType.Custom.value:
             attr_dict["Custom consumption pattern"] = self._custom_consumption_pattern
-        attr_dict["raw_start"]= self._raw_start
-        attr_dict["price_source"] = self._price_source
-        attr_dict["update_by"] = self._update_by
-        attr_dict["calculate_by"] = self._calculate_by
         return attr_dict
 
     @property
@@ -160,8 +164,19 @@ class PeaqNextSensor(SensorEntity):
     def _make_hours_display(self, model: HourModel) -> str:
         if not self._check_hourmodel(model):
             return ""
-        tomorrow1: str = self._get_tomorrow_assignation(model.dt_start.day > datetime.now().day)
-        tomorrow2: str = self._get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
-        ret = f"{model.dt_start.strftime('%H:%M')}{tomorrow1}-{model.dt_end.strftime('%H:%M')}{tomorrow2}"
-        return f"{self._add_now_to_date(model)}{ret}"
+        if self._relative_time:
+            differ = model.dt_start
+            prefix = "start "
+            if self._calculate_by == CalculateBy.ENDTIME:
+                differ = model.dt_end
+                prefix = "end "
+            hour_diff = int((datetime.now() - differ).total_seconds()/3600)
+            if hour_diff == 0:
+                return f"{prefix}now"
+            return f"{prefix}{hour_diff}h"
+        else:
+            tomorrow1: str = self._get_tomorrow_assignation(model.dt_start.day > datetime.now().day)
+            tomorrow2: str = self._get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
+            ret = f"{model.dt_start.strftime('%H:%M')}{tomorrow1}-{model.dt_end.strftime('%H:%M')}{tomorrow2}"
+            return f"{self._add_now_to_date(model)}{ret}"
         

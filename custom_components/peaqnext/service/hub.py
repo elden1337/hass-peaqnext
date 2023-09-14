@@ -61,12 +61,12 @@ class Hub:
         if active_sensor is None:
             return {}
         await self.async_update_prices(self.prices)
-        try:
-            update_by = active_sensor.update_by.value,
-            calculate_by = active_sensor.calculate_by.value,
-        except Exception as e:
-            _LOGGER.error(f"Unable to get sensor updates. Exception: {e}, {active_sensor.calculate_by.value}, {active_sensor.update_by.value}")
-            return {}
+        # try:
+        #     update_by = active_sensor.update_by,
+        #     calculate_by = active_sensor.calculate_by,
+        # except Exception as e:
+        #     _LOGGER.error(f"Unable to get sensor updates. Exception: {e}, {active_sensor.calculate_by.value}, {active_sensor.update_by.value}")
+        #     return {}
         return {
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,
@@ -79,8 +79,9 @@ class Hub:
             "closest_cheap_hour": active_sensor.default_closest_cheap,
             "custom_consumption_pattern": active_sensor.custom_consumption_pattern_list,
             "price_source": self.spotprice.source,
-            "update_by": active_sensor.update_by.value,
-            "calculate_by": active_sensor.calculate_by.value,
+            "update_by": active_sensor.update_by,
+            "calculate_by": active_sensor.calculate_by,
+            "relative_time": active_sensor.show_relative_time,
         }
 
     @callback

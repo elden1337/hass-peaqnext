@@ -16,6 +16,7 @@ from custom_components.peaqnext.service.models.next_sensor.enums.update_by impor
 
 from .const import (
     CONF_DEDUCT_PRICE,
+    CONF_RELATIVE_TIME,
     DOMAIN,
     CONF_NAME,
     CONF_SENSORS,
@@ -43,6 +44,7 @@ SENSORS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NONHOURS_START): cv.multi_select(list(range(0, 24))),
         vol.Optional(CONF_NONHOURS_END): cv.multi_select(list(range(0, 24))),
         vol.Optional(CONF_CLOSEST_CHEAP, default=12): cv.positive_float,
+        vol.Optional(CONF_RELATIVE_TIME, default=False): cv.boolean,
         vol.Optional(CONF_DEDUCT_PRICE, default=0): cv.positive_float,
         vol.Optional(
             CONF_UPDATE_BY,
@@ -89,6 +91,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CLOSEST_CHEAP: user_input.get(CONF_CLOSEST_CHEAP, 12),
                     CONF_DEDUCT_PRICE: user_input.get(CONF_DEDUCT_PRICE, 0),
                     CONF_UPDATE_BY: user_input.get(CONF_UPDATE_BY, ""),
+                    CONF_RELATIVE_TIME: user_input.get(CONF_RELATIVE_TIME, False),
                     CONF_CALCULATE_BY: user_input.get(CONF_CALCULATE_BY, "")
                 }
             )

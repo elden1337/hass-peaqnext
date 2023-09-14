@@ -13,6 +13,8 @@ class NextSensorData:
     use_cent: bool = False
     update_by: UpdateBy = UpdateBy.MINUTE
     calculate_by: CalculateBy = CalculateBy.STARTTIME
+    show_relative_time: bool = False
+
 
     @property
     def total_duration_in_seconds(self) -> int:
