@@ -166,18 +166,14 @@ class PeaqNextSensor(SensorEntity):
             return ""
         if self._relative_time:
             differ = model.dt_start
-            prefix = "Start "
+            prefix = f"Start "
             if self._calculate_by == CalculateBy.ENDTIME:
                 differ = model.dt_end
-                prefix = "End "
-            hour_diff = int((differ - datetime.now()).total_seconds()/3600)
-            minute_diff = int((differ - datetime.now()).total_seconds()/60)
+                prefix = f"End "
+            hour_diff = round((differ - datetime.now()).total_seconds()/3600,0)
             if hour_diff == 0:
-                if minute_diff == 0:
-                    return f"{prefix}now -"
-                else:
-                    return f"{prefix}in {minute_diff}m -"
-            return f"{prefix}in {hour_diff}h -"
+                return f"{prefix}now "
+            return f"{prefix}in {int(hour_diff)}h "
         else:
             tomorrow1: str = self._get_tomorrow_assignation(model.dt_start.day > datetime.now().day)
             tomorrow2: str = self._get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
