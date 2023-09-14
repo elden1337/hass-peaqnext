@@ -172,8 +172,8 @@ class PeaqNextSensor(SensorEntity):
                 prefix = f"End "
             hour_diff = round((differ - datetime.now()).total_seconds()/3600,0)
             if hour_diff == 0:
-                return f"{prefix}now "
-            return f"{prefix}in {int(hour_diff)}h "
+                return f"{self._add_now_to_date(model)}{prefix}now "
+            return f"{self._add_now_to_date(model)}{prefix}in {int(hour_diff)}h "
         else:
             tomorrow1: str = self._get_tomorrow_assignation(model.dt_start.day > datetime.now().day)
             tomorrow2: str = self._get_tomorrow_assignation(model.dt_end.day > datetime.now().day)
