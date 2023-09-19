@@ -58,8 +58,8 @@ async def async_create_internal_sensors(conf: ConfigEntry) -> list[NextSensor]:
                 default_closest_cheap=s.get(CONF_CLOSEST_CHEAP, 12),
                 deduct_price=s.get(CONF_DEDUCT_PRICE, 0),
                 show_relative_time=s.get(CONF_RELATIVE_TIME, False),
-                update_by=UpdateBy(s.get(CONF_UPDATE_BY)),
-                calculate_by=CalculateBy(s.get(CONF_CALCULATE_BY)),
+                update_by=UpdateBy(s.get(CONF_UPDATE_BY, UpdateBy.HOUR.value)),
+                calculate_by=CalculateBy(s.get(CONF_CALCULATE_BY, CalculateBy.STARTTIME.value)),
             )
         )
     return sensors
