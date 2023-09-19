@@ -16,10 +16,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def calculate_consumption_per_hour(
-    consumption: float, duration_in_seconds: int, consumption_type: ConsumptionType, custom_consumption_pattern: list
+    consumption: float, duration_in_seconds: int, consumption_type: ConsumptionType, custom_consumption_pattern: list, start_minute: int
 ) -> list[float]:
-    if 4 < duration_in_seconds <= 3600:
-        return [consumption]
+    # if 4 < duration_in_seconds <= 3600:
+    #     return [consumption]
     try:
         segments = _get_segments(consumption_type, duration_in_seconds, custom_consumption_pattern)
     except Exception as e:
@@ -34,13 +34,16 @@ def calculate_consumption_per_hour(
     ret = []
     try:
         intret = 0
-        for t in range(0, duration_in_minutes):
-            intret += minute_consumption[t]
-            if (t % 60 == 0 and t > 0) or t == duration_in_minutes - 1:
+        j = 0
+        for t in range(start_minute, duration_in_minutes+start_minute):
+            intret += minute_consumption[j]
+            if (t % 60 == 0 and t > 0) or t == duration_in_minutes+start_minute - 1:
                 ret.append(round(intret, 1))
                 intret = 0
+            j += 1
     except Exception as e:
         print(e)
+    print(f"ret: {ret}")
     return ret
 
 

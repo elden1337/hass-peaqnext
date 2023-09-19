@@ -127,7 +127,8 @@ class NextSensor(NextSensorData):
             self.total_consumption_in_kwh,
             self.total_duration_in_seconds,
             self.consumption_type,
-            self.custom_consumption_pattern_list
+            self.custom_consumption_pattern_list,
+            self.dt_model.get_dt_now().minute if self.update_by == UpdateBy.MINUTE else 0
         )
         try:            
             self._all_sequences = get_hours_sorted(

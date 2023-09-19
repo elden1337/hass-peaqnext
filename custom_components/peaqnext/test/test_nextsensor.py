@@ -352,3 +352,19 @@ async def test_cheapest_hour_update_hourly():
         print(s)
     
     assert 1 > 2
+
+@pytest.mark.asyncio
+async def test_price_change_per_minute():
+    s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=60, total_consumption_in_kwh=1, update_by=UpdateBy.MINUTE)
+    s.dt_model.set_date(date(2023,7,30))
+    s.dt_model.set_hour(0)
+    s.dt_model.set_minute(0)
+    await s.async_update_sensor([[0.1, 1],[]])
+    for seq in s.all_sequences:
+        print(seq.dt_start, seq.price)
+    s.dt_model.set_minute(45)
+    await s.async_update_sensor([[0.1, 1],[]])
+    print('---')
+    for seq in s.all_sequences:
+        print(seq.dt_start, seq.price)
+    assert 1 > 2
