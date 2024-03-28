@@ -1,0 +1,6 @@
+{
+  "services": {
+    "override_sensor_data": "mdi:set-merge",
+    "cancel_override": "mdi:cancel"
+  }
+}
