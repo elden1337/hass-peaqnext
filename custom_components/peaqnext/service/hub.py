@@ -5,8 +5,8 @@ from datetime import datetime
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
 from custom_components.peaqnext.service.spotprice.spotprice_factory import SpotPriceFactory
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_state_change
+from homeassistant.core import HomeAssistant, callback, Event, EventStateChangedData
+from homeassistant.helpers.event import async_track_state_change_event
 
 _LOGGER = logging.getLogger(__name__)
 SPOTPRICE_UPDATE_FORCE = 60
@@ -26,10 +26,10 @@ class Hub:
         self.spotprice: ISpotPrice = SpotPriceFactory.create(self, test)
         self.latest_spotprice_update = 0
         if not test:
-            async_track_state_change(
+            async_track_state_change_event(
                 self.state_machine,
                 [self.spotprice.entity],
-                self.async_state_changed,
+                self._async_on_change,
             )
 
     async def async_setup(self, sensors: list[NextSensor]) -> None:
@@ -85,7 +85,10 @@ class Hub:
         }
 
     @callback
-    async def async_state_changed(self, entity_id, old_state, new_state):
+    async def _async_on_change(self, event: Event[EventStateChangedData]) -> None:
+        entity_id = event.data['entity_id']
+        old_state = event.data['old_state']
+        new_state = event.data['new_state']
         if entity_id is not None:
             try:
                 if old_state is None or old_state != new_state:
