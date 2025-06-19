@@ -14,5 +14,5 @@
     "integration_type": "hub",
     "iot_class": "calculated",
     "issue_tracker": "https://github.com/elden1337/hass-peaqnext/issues",
-    "version": "0.5.7"
+    "version": "0.5.8"
 }
