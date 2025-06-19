@@ -29,12 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, conf: ConfigEntry) -> bool:
 
     # conf.async_on_unload(conf.add_update_listener(async_update_entry))
     await async_prepare_register_services(hub, hass)
-
-    for platform in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(conf, platform)
-        )
-
+    await hass.config_entries.async_forward_entry_setups(conf, PLATFORMS)
     return True
 
 async def async_remove_config_entry_device(
