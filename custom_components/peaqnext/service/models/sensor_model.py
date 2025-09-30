@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Any
+
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
@@ -13,8 +15,8 @@ from custom_components.peaqnext.service.segments import (
     calculate_consumption_per_hour,
 )
 from custom_components.peaqnext.service.hours import (
-    get_hours_sorted,
-    cheapest_hour,
+    get_intervals_sorted,
+    cheapest_interval,
 )
 from custom_components.peaqnext.service.models.period_model import PeriodModel
 import logging
@@ -34,7 +36,7 @@ class NextSensor(NextSensorData):
     price_model: SensorPrices = field(default_factory=lambda: SensorPrices())
     override_model: NextSensorOverride = field(default_factory=lambda: NextSensorOverride())
     override: bool = field(default=False)
-    _latest_update: int = field(default=None, init=True, repr=False, hash=False, compare=False)
+    _latest_update: datetime = field(default=None, init=True, repr=False, hash=False, compare=False)
 
     def __post_init__(self):
         self.custom_consumption_pattern_list = self._validate_custom_pattern(self.custom_consumption_pattern)
@@ -61,8 +63,9 @@ class NextSensor(NextSensorData):
         if self_override and hasattr(override_model, attr) and attr in NextSensorData.__dict__:
             return getattr(override_model, attr)
         return super().__getattribute__(attr)
-  
-    def _validate_custom_pattern(self, custom_consumption_pattern: str|None) -> list[int|float]:
+
+    @staticmethod
+    def _validate_custom_pattern(custom_consumption_pattern: str|None) -> list[int|float]:
         if not custom_consumption_pattern:
             return []
         pattern = custom_consumption_pattern.split(",")
@@ -74,8 +77,8 @@ class NextSensor(NextSensorData):
 
     @property
     def best_start(self) -> PeriodModel:
-        return cheapest_hour(
-            hours_list=self.all_sequences, 
+        return cheapest_interval(
+            intervals_list=self.all_sequences,
             cheapest_cap=None,
             override_end=self._get_end_cap(),
             mock_dt=self.dt_model.get_dt_now()
@@ -83,8 +86,8 @@ class NextSensor(NextSensorData):
 
     @property
     def best_close_start(self) -> PeriodModel:
-        return cheapest_hour(
-            hours_list=self.all_sequences, 
+        return cheapest_interval(
+            intervals_list=self.all_sequences,
             cheapest_cap=self.default_closest_cheap, 
             override_end=self._get_end_cap(),
             mock_dt=self.dt_model.get_dt_now()
@@ -131,11 +134,11 @@ class NextSensor(NextSensorData):
             self.dt_model.get_dt_now().minute if self.update_by == UpdateBy.MINUTE else 0
         )
         try:            
-            self._all_sequences = get_hours_sorted(
+            self._all_sequences = get_intervals_sorted(
                 prices=tuple([p - self.deduct_price for p in price_list] for price_list in self.price_model.prices),
                 consumption_pattern=segments,
-                non_hours_start=self.non_hours_start,
-                non_hours_end=self.non_hours_end,
+                non_intervals_start=self.non_hours_start,
+                non_intervals_end=self.non_hours_end,
                 duration_in_seconds=self.total_duration_in_seconds,
                 mock_dt =self.dt_model.get_dt_now(),
                 use_cent=self.price_model.use_cent,
@@ -161,7 +164,7 @@ class NextSensor(NextSensorData):
             custom_consumption_pattern: str|None = None,
             non_hours_start: list[int]|None = None,
             non_hours_end: list[int]|None = None,
-            timeout: any = None
+            timeout: Any = None
             ) -> None:
             do_override: bool = False
             self.override_model.timeout = timeout

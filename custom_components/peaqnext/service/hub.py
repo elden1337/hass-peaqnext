@@ -15,7 +15,7 @@ SPOTPRICE_UPDATE_FORCE = 60
 class Hub:
     hub_id = 33512
     hubname = "PeaqNext"
-    sensors_dict: Dict[str:NextSensor] = {}
+    sensors_dict: Dict[str,NextSensor] = {}
     sensors: list[NextSensor] = []
     
     def __init__(self, hass, test:bool = False) -> None:
