@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from custom_components.peaqnext.service.hub import Hub
 from homeassistant.components.sensor import SensorEntity
 import logging
-from custom_components.peaqnext.service.models.hour_model import HourModel
+from custom_components.peaqnext.service.models.period_model import PeriodModel
 from custom_components.peaqnext.util import nametoid
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class PeaqNextSensor(SensorEntity):
         self._attr_name = name
         self._attr_available = True
         self._state: str = None
-        self._all_seqeuences: list[HourModel]|None = None
+        self._all_seqeuences: list[PeriodModel] | None = None
         self._consumption_type = None
         self._duration_in_minutes = None
         self._consumption_in_kwh = None
@@ -109,13 +109,13 @@ class PeaqNextSensor(SensorEntity):
         """Return a unique ID to use for this sensor."""
         return f"{DOMAIN}_{self._entry_id}_{nametoid(self._attr_name)}"
 
-    def _make_dict(self, model: list[HourModel]) -> list[str]:
+    def _make_dict(self, model: list[PeriodModel]) -> list[str]:
         ret = {}
         for m in model:
             ret[self._make_hours_display(m)] = self._make_price(m)
         return ret
 
-    def _make_price(self, model: HourModel) -> str:
+    def _make_price(self, model: PeriodModel) -> str:
         if model is None:
             return ""
         return self.currency_translation(model.price)
@@ -135,7 +135,7 @@ class PeaqNextSensor(SensorEntity):
                 ret = f"{value} {currency}"
         return ret
 
-    def _make_string(self, model: HourModel) -> str:
+    def _make_string(self, model: PeriodModel) -> str:
         if not self._check_hourmodel(model):
             return ""
         return f"{self._make_hours_display(model)} {self._make_price(model)}"
@@ -144,7 +144,7 @@ class PeaqNextSensor(SensorEntity):
     def _set_raw_start(start: datetime) -> str:
         return start.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
-    def _check_hourmodel(self, model: HourModel) -> bool:
+    def _check_hourmodel(self, model: PeriodModel) -> bool:
         if model is None:
             _LOGGER.debug(f"model is None {self.name}")
             return False
@@ -158,10 +158,10 @@ class PeaqNextSensor(SensorEntity):
         return "⁺¹" if comparer else ""
 
     @staticmethod
-    def _add_now_to_date(model: HourModel) -> str:
+    def _add_now_to_date(model: PeriodModel) -> str:
         return ">> " if model.dt_start.day == datetime.now().day and model.dt_start.hour == datetime.now().hour else ""
 
-    def _make_hours_display(self, model: HourModel) -> str:
+    def _make_hours_display(self, model: PeriodModel) -> str:
         if not self._check_hourmodel(model):
             return ""
         if self._relative_time:

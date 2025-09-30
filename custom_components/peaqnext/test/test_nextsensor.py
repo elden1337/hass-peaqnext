@@ -5,7 +5,7 @@ from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
-from custom_components.peaqnext.service.models.hour_model import HourModel
+from custom_components.peaqnext.service.models.period_model import PeriodModel
 from custom_components.peaqnext.service.models.next_sensor.enums.update_by import UpdateBy
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 import custom_components.peaqnext.test.prices as _p
@@ -305,7 +305,7 @@ async def test_custom_consumption_invalid():
         s = NextSensor(consumption_type=ConsumptionType.Custom, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10, custom_consumption_pattern="0.f5,0.5") 
 
 
-def _check_hourmodel(model: HourModel) -> bool:
+def _check_hourmodel(model: PeriodModel) -> bool:
     if model is None:
         return False
     elif not model.is_valid:
@@ -316,10 +316,10 @@ def _check_hourmodel(model: HourModel) -> bool:
 def _get_tomorrow_assignation(comparer: bool) -> str:
     return "⁺¹" if comparer else ""
 
-def _add_now_to_date(model: HourModel) -> str:
+def _add_now_to_date(model: PeriodModel) -> str:
     return ">> " if model.dt_start.day == datetime.now().day and model.dt_start.hour == datetime.now().hour else ""
 
-def _make_hours_display(model: HourModel) -> str:
+def _make_hours_display(model: PeriodModel) -> str:
     if not _check_hourmodel(model):
         return ""
     tomorrow1: str = _get_tomorrow_assignation(model.dt_start.day > datetime.now().day)

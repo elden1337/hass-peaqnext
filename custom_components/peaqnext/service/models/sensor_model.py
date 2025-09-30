@@ -16,7 +16,7 @@ from custom_components.peaqnext.service.hours import (
     get_hours_sorted,
     cheapest_hour,
 )
-from custom_components.peaqnext.service.models.hour_model import HourModel
+from custom_components.peaqnext.service.models.period_model import PeriodModel
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class NextSensor(NextSensorData):
     hass_entity_id: str = "sensor.next_sensor"
     custom_consumption_pattern: str|None = field(repr=False, hash=False, compare=False, default=None)
     default_closest_cheap: int = 12
-    _all_sequences: list[HourModel] = field(default_factory=lambda: [])
+    _all_sequences: list[PeriodModel] = field(default_factory=lambda: [])
     dt_model: DTModel = field(default_factory=lambda: DTModel())
     price_model: SensorPrices = field(default_factory=lambda: SensorPrices())
     override_model: NextSensorOverride = field(default_factory=lambda: NextSensorOverride())
@@ -73,7 +73,7 @@ class NextSensor(NextSensorData):
         return pattern  
 
     @property
-    def best_start(self) -> HourModel:
+    def best_start(self) -> PeriodModel:
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=None,
@@ -82,7 +82,7 @@ class NextSensor(NextSensorData):
             )
 
     @property
-    def best_close_start(self) -> HourModel:
+    def best_close_start(self) -> PeriodModel:
         return cheapest_hour(
             hours_list=self.all_sequences, 
             cheapest_cap=self.default_closest_cheap, 
@@ -91,7 +91,7 @@ class NextSensor(NextSensorData):
             )
 
     @property
-    def all_sequences(self) -> list[HourModel]:
+    def all_sequences(self) -> list[PeriodModel]:
         _now = self.dt_model.get_dt_now()
         if self.update_by == UpdateBy.HOUR:
             _now = _now.replace(minute=0, second=0, microsecond=0)

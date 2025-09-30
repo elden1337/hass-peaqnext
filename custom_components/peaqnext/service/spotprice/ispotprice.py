@@ -69,10 +69,6 @@ class ISpotPrice:
         return self._source
 
     @abstractmethod
-    async def async_update_spotprice(self) -> None:
-        pass
-
-    @abstractmethod
     async def async_set_dto(self, ret) -> None:
         pass
 

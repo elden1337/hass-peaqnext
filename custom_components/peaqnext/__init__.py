@@ -1,4 +1,4 @@
-"""The peaqev integration."""
+"""The peaqnext integration."""
 from __future__ import annotations
 
 import logging

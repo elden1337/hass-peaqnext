@@ -5,7 +5,7 @@ from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
 )
-from custom_components.peaqnext.service.models.hour_model import HourModel
+from custom_components.peaqnext.service.models.period_model import PeriodModel
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 import custom_components.peaqnext.test.prices as _p
 from datetime import date, datetime, timedelta

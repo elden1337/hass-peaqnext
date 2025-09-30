@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 @dataclass
-class HourModel:
+class PeriodModel:
     idx: int
     price: float    
     dt_start: datetime = field(default_factory=lambda: datetime.now().replace(second=0).replace(microsecond=0))

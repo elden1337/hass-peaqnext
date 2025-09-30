@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any
+from typing import Any, Dict
 from datetime import datetime
 from custom_components.peaqnext.service.models.sensor_model import NextSensor
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
@@ -15,10 +15,10 @@ SPOTPRICE_UPDATE_FORCE = 60
 class Hub:
     hub_id = 33512
     hubname = "PeaqNext"
-    sensors_dict: dict[str:NextSensor] = {}
+    sensors_dict: Dict[str:NextSensor] = {}
     sensors: list[NextSensor] = []
     
-    def __init__(self, hass, test:bool = False) -> Any:
+    def __init__(self, hass, test:bool = False) -> None:
         if not test:
             self.state_machine: HomeAssistant = hass
         self._current_minute: int = None
@@ -61,12 +61,6 @@ class Hub:
         if active_sensor is None:
             return {}
         await self.async_update_prices(self.prices)
-        # try:
-        #     update_by = active_sensor.update_by,
-        #     calculate_by = active_sensor.calculate_by,
-        # except Exception as e:
-        #     _LOGGER.error(f"Unable to get sensor updates. Exception: {e}, {active_sensor.calculate_by.value}, {active_sensor.update_by.value}")
-        #     return {}
         return {
             "state": active_sensor.best_start,
             "best_close_start": active_sensor.best_close_start,
