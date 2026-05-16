@@ -11,7 +11,6 @@ class ISpotPrice:
         self._source: str = source
         _LOGGER.debug(f"Initializing Spotprice for {self._source}.")
         self.hub = hub
-        print(f"Initializing Spotprice for {self._source}. {self.hub}.")
         self._entity: str | None = None
         self._is_initialized: bool = False
         self._currency: str = ""

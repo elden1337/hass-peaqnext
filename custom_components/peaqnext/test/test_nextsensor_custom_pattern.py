@@ -26,8 +26,7 @@ class MockNordpool:
 async def test_override_consumption():    
     s = NextSensor(consumption_type=ConsumptionType.Custom, custom_consumption_pattern="1.2, 3, 4, 6, 8",name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
     s.dt_model.set_hour(4)   
-    await s.async_update_sensor((_p.P230729BE,[]))   
-    print(s.all_sequences)
+    await s.async_update_sensor((_p.P230729BE,[]))
     assert s.all_sequences[0].sum_consumption_pattern == 10
     await s.async_override_sensor_data(total_consumption_in_kwh=20)
     assert s.all_sequences[0].sum_consumption_pattern == 20

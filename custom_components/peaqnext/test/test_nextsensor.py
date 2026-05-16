@@ -35,8 +35,7 @@ async def test_prices():
 async def test_prices_use_cent():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
     s.dt_model.set_hour(4)  
-    await s.async_update_sensor(([h*100 for h in _p.P230729BE],[]), use_cent=True)    
-    print(s.best_close_start)
+    await s.async_update_sensor(([h*100 for h in _p.P230729BE],[]), use_cent=True)
     assert s.best_close_start.dt_start.hour == 15
     assert s.best_close_start.price == 0.12
 
@@ -155,10 +154,7 @@ async def test_midnight():
     await s.async_update_sensor((_p.P230731,[]))
     assert len(s.all_sequences) == 23
     s.dt_model.set_hour(13)
-    print(s.dt_model.get_dt_now())
     await s.async_update_sensor((_p.P230731,_p.P230801))
-    for a in s.all_sequences:
-        print(a)
     assert len(s.all_sequences) == 34
     s.dt_model.set_date(date(2023,8,1))
     s.dt_model.set_hour(0)
@@ -263,8 +259,6 @@ async def test_hub_rounding_eur():
     await hub.spotprice.async_set_dto(np1)    
     tt = await hub.async_get_sensor_updates(s)
     comparers = [t.comparer for t in tt.get("all_sequences")]
-    for t in comparers:
-        print(t)
     assert all([len(str(c).split('.')[1]) <= 2 for c in comparers])
     assert any([len(str(c).split('.')[1]) > 1 for c in comparers])
 
@@ -309,7 +303,6 @@ def _check_hourmodel(model: PeriodModel) -> bool:
     if model is None:
         return False
     elif not model.is_valid:
-        print("not valid")
         return False
     return True
 
@@ -331,9 +324,7 @@ def _make_hours_display(model: PeriodModel) -> str:
 async def test_correct_sorting_negative_prices_2():    
     s = NextSensor(consumption_type=ConsumptionType.Flat, name="test", hass_entity_id="sensor.test", total_duration_in_minutes=120, total_consumption_in_kwh=10) 
     s.dt_model.set_hour(2)   
-    await s.async_update_sensor((_p.PNEGATIVE2,[]), use_cent=False)        
-    for h in s.all_sequences:
-        print(h)
+    await s.async_update_sensor((_p.PNEGATIVE2,[]), use_cent=False)
     all_seq_copy = s.all_sequences[:]
     all_seq_copy.sort(key=lambda x: (x.comparer, x.dt_start))
     assert all_seq_copy == s.all_sequences
@@ -346,11 +337,6 @@ async def test_cheapest_hour_update_hourly():
     s.dt_model.set_date(date(2023,7,30))
     s.dt_model.set_hour(20)
     await s.async_update_sensor([_p.P230731,_p.P230801])
-    print(s.best_close_start)
-    print("---------")
-    for s in s.all_sequences:
-        print(s)
-    
     assert 1 > 2
 
 @pytest.mark.asyncio
@@ -360,11 +346,6 @@ async def test_price_change_per_minute():
     s.dt_model.set_hour(0)
     s.dt_model.set_minute(0)
     await s.async_update_sensor([[0.1, 1],[]])
-    for seq in s.all_sequences:
-        print(seq.dt_start, seq.price)
     s.dt_model.set_minute(45)
     await s.async_update_sensor([[0.1, 1],[]])
-    print('---')
-    for seq in s.all_sequences:
-        print(seq.dt_start, seq.price)
     assert 1 > 2
