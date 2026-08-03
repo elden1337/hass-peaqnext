@@ -1,5 +1,4 @@
 from custom_components.peaqnext.service.spotprice.const import *
-import homeassistant.helpers.template as template
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
 from custom_components.peaqnext.service.spotprice.nordpool import NordPoolUpdater
 from custom_components.peaqnext.service.spotprice.energidataservice import EnergiDataServiceUpdater

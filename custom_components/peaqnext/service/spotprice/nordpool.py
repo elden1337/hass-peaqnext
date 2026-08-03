@@ -1,6 +1,7 @@
 from custom_components.peaqnext.service.spotprice.ispotprice import ISpotPrice
 from custom_components.peaqnext.service.spotprice.spotprice_dto import NordpoolDTO
 from custom_components.peaqnext.service.spotprice.const import NORDPOOL
+from homeassistant.helpers.entity import entity_sources
 import logging
 import asyncio
 
@@ -25,8 +26,8 @@ class NordPoolUpdater(ISpotPrice):
         try:
             entities = [
                 entity_id
-                for entity_id in self.state_machine.states.async_entity_ids()
-                if entity_id.startswith("sensor.nordpool")
+                for entity_id, info in entity_sources(self.state_machine).items()
+                if info["domain"] == self._source
             ]
 
             _LOGGER.debug(f"Found {list(entities)} Spotprice entities.")
