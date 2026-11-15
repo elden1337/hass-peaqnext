@@ -676,3 +676,6 @@ FodyWeavers.xsd
 *.sln.iml
 /.vs/
 *.DS_Store
+
+# coverage
+.coverage

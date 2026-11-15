@@ -1,6 +1,6 @@
 from statistics import mean
 import pytest
-from custom_components.peaqnext.service.hours import cheapest_hour
+from custom_components.peaqnext.service.hours import cheapest_interval
 from custom_components.peaqnext.service.hub import Hub
 from custom_components.peaqnext.service.models.consumption_type import (
     ConsumptionType,
