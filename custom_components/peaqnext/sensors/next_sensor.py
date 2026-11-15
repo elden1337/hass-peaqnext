@@ -99,7 +99,7 @@ class PeaqNextSensor(SensorEntity):
         return {
             "identifiers": {(DOMAIN, self.hub.hub_id)},
             "name": f"{DOMAIN} {HUB} ({self.hub.hub_id})",
-            "sw_version": 1,
+            "sw_version": "1",
             "model": "Normal",
             "manufacturer": "Peaq systems",
         }
