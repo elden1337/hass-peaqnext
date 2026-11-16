@@ -2,8 +2,6 @@
 
 [![Peaqnext_downloads](https://img.shields.io/github/downloads/elden1337/hass-peaqnext/total)](https://github.com/elden1337/hass-peaqnext) 
 [![hass-peaqnext_downloads](https://img.shields.io/github/downloads/elden1337/hass-peaqnext/latest/total)](https://github.com/elden1337/hass-peaqnext)
-[![Paypal](https://img.shields.io/badge/Sponsor-PayPal-orange.svg)](https://www.paypal.com/donate/?hosted_button_id=GLGW8QAAQC2FG)
-[![BuyMeACoffee](https://img.shields.io/badge/Sponsor-BuyMeACoffee-orange.svg)](https://buymeacoffee.com/elden)
 
 # Peaqnext utility sensors
 
